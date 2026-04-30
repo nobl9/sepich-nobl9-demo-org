@@ -1,0 +1,28 @@
+version: v1
+portfolio: sepich-nobl9-demo-org
+description: >
+  Demo enterprise application inventory. This represents the kind of broader
+  CMDB or application portfolio source system that typically exists in
+  enterprise environments. Governed Nobl9 applications are derived from this
+  inventory based on criticality metadata.
+
+apps:
+  - app_id: app-7f3b9d21
+    name: Storefront Platform
+    business_criticality_tier: tier1
+    ad_group_name: AD-N9-Storefront-Owners
+
+  - app_id: app-18ac42ef
+    name: OpenTelemetry Astronomy Shop
+    business_criticality_tier: tier2
+    ad_group_name: AD-N9-AstronomyShop-Owners
+
+  - app_id: app-c2e90844
+    name: Digital Banking Platform
+    business_criticality_tier: tier2
+    ad_group_name: AD-N9-Banking-Owners
+
+  - app_id: app-5aa11490
+    name: Bookings
+    business_criticality_tier: tier3
+    ad_group_name: AD-N9-Bookings-Owners

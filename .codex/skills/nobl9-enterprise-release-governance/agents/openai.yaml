@@ -1,0 +1,7 @@
+interface:
+  display_name: "Nobl9 Enterprise Release Governance"
+  short_description: "Update or evaluate governed Nobl9 release standards"
+  default_prompt: "Use $nobl9-enterprise-release-governance to update or evaluate the repo's governed Nobl9 release governance model."
+
+policy:
+  allow_implicit_invocation: true

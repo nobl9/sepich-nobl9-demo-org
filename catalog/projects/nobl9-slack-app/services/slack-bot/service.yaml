@@ -1,8 +1,0 @@
-apiVersion: n9/v1alpha
-kind: Service
-metadata:
-  displayName: Slack Bot
-  name: slack-bot
-  project: nobl9-slack-app
-spec:
-  description: Nobl9 Slack App - serverless Lambda handlers

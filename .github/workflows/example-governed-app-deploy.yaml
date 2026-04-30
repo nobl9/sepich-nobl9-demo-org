@@ -1,0 +1,89 @@
+name: Example Governed App Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      app_id:
+        description: "Optional governed application ID from governed-apps.yaml"
+        required: false
+        type: string
+      project:
+        description: "Optional governed Nobl9 project name"
+        required: false
+        type: string
+      service:
+        description: "Optional governed service name"
+        required: false
+        type: string
+      environment:
+        description: "Deployment environment label"
+        required: true
+        default: production
+        type: string
+      replay_from:
+        description: "Optional RFC3339 timestamp to replay SLO history from after deploy"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: example-governed-app-deploy-${{ inputs.environment }}-${{ inputs.project || inputs.app_id || 'unknown-target' }}-${{ inputs.service || 'all-services' }}
+  cancel-in-progress: false
+
+jobs:
+  governance_gate:
+    name: Governance Gate
+    uses: ./.github/workflows/slo-deployment-gate.yaml
+    with:
+      app_id: ${{ inputs.app_id }}
+      project: ${{ inputs.project }}
+      service: ${{ inputs.service }}
+      environment: ${{ inputs.environment }}
+
+  deploy_application:
+    name: Deploy Application
+    needs: governance_gate
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Simulate application deployment
+        run: |
+          echo "Replace this step with the real application deployment workflow."
+          echo "Deploying governed target:"
+          echo "  app_id=${{ inputs.app_id }}"
+          echo "  project=${{ inputs.project }}"
+          echo "  service=${{ inputs.service }}"
+          echo "  environment=${{ inputs.environment }}"
+
+      - name: Publish deployment summary
+        run: |
+          {
+            echo "## Example Governed App Deploy"
+            echo ""
+            echo "- Status: \`app deployed\`"
+            echo "- Environment: \`${{ inputs.environment }}\`"
+            if [ -n "${{ inputs.app_id }}" ]; then
+              echo "- App ID: \`${{ inputs.app_id }}\`"
+            fi
+            if [ -n "${{ inputs.project }}" ]; then
+              echo "- Project: \`${{ inputs.project }}\`"
+            fi
+            if [ -n "${{ inputs.service }}" ]; then
+              echo "- Service: \`${{ inputs.service }}\`"
+            fi
+            echo "- Note: Replace the placeholder deploy step with the real enterprise deployment logic."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  reconcile_nobl9:
+    name: Reconcile Nobl9
+    needs: deploy_application
+    uses: ./.github/workflows/slo-apply.yaml
+    with:
+      replay_from: ${{ inputs.replay_from }}
+    secrets: inherit

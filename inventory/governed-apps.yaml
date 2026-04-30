@@ -1,40 +1,13 @@
 version: v1
 portfolio: sepich-nobl9-demo-org
-description: >
-  Governed production applications and services. Only services listed here are
-  evaluated as enterprise deployment requirements.
-
+description: Governed production applications synced from app-inventory.yaml using
+  enterprise criticality metadata.
 apps:
-  - app_id: storefront-platform-app
-    display_name: Storefront Platform Demo
-    project: storefront-platform-demo
-    production: true
-    owner: demo-platform
-    deployment_policy: enforce
-    services:
-      - service: storefront
-        tier: tier1
-        required_slos:
-          - availability
-          - latency
-      - service: customer-login
-        tier: tier1
-        required_slos:
-          - availability
-          - latency
-      - service: payment-processing
-        tier: tier2
-        required_slos:
-          - availability
-          - latency
-      - service: inventory-catalog
-        tier: tier2
-        required_slos:
-          - availability
-          - latency
-      - service: recommendations-engine
-        tier: tier2
-        required_slos:
-          - availability
-          - latency
-
+- app_id: app-7f3b9d21
+  name: Storefront Platform
+  project: storefront-platform-demo
+  ad_group_name: AD-N9-Storefront-Owners
+  deployment_policy: enforce
+  derived_from:
+    business_criticality_tier: tier1
+    project_source: catalog

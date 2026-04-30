@@ -13,6 +13,7 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 CATALOG_ROOT = ROOT / "catalog" / "projects"
+GOVERNED_APPS_PATH = ROOT / "inventory" / "governed-apps.yaml"
 EXPORTS = (
     ["sloctl", "get", "projects", "-o", "yaml"],
     ["sloctl", "get", "services", "-A", "-o", "yaml"],
@@ -52,6 +53,11 @@ def clean_document(document: dict) -> dict:
         cleaned.pop("spec", None)
 
     return cleaned
+
+
+def load_governed_apps() -> dict:
+    with GOVERNED_APPS_PATH.open("r", encoding="utf-8") as handle:
+        return yaml.safe_load(handle) or {}
 
 
 def write_yaml(path: Path, document: dict) -> None:
@@ -94,29 +100,109 @@ def slo_path(resource: dict) -> Path:
     )
 
 
+def build_governed_scope(governed_apps: dict) -> set[str]:
+    return {
+        app.get("project")
+        for app in governed_apps.get("apps", [])
+        if app.get("project")
+    }
+
+
+def synthesize_project(app: dict) -> dict:
+    labels = {
+        "governed-app": ["true"],
+    }
+    if app.get("app_id"):
+        labels["app-id"] = [app["app_id"]]
+    if app.get("ad_group_name"):
+        labels["ad-group-name"] = [app["ad_group_name"]]
+    tier = app.get("derived_from", {}).get("business_criticality_tier")
+    if tier:
+        labels["business-criticality-tier"] = [tier]
+
+    return {
+        "apiVersion": "n9/v1alpha",
+        "kind": "Project",
+        "metadata": {
+            "name": app["project"],
+            "displayName": app.get("name"),
+            "labels": labels,
+        },
+        "spec": {
+            "description": (
+                "Bootstrap project scaffold synthesized from governed-apps.yaml. "
+                "Teams can add or sync services and SLOs after the project exists in Nobl9."
+            )
+        },
+    }
+
+
 def main() -> int:
+    governed_apps = load_governed_apps()
+    governed_scope = build_governed_scope(governed_apps)
+    if not governed_scope:
+        raise SystemExit(
+            f"No governed applications found in {GOVERNED_APPS_PATH}. Run sync_governed_apps.py first."
+        )
+
     projects, services, alert_policies, slos = [run_export(command) for command in EXPORTS]
+
+    filtered_projects = [
+        document
+        for document in projects
+        if document.get("metadata", {}).get("name") in governed_scope
+    ]
+    existing_project_names = {
+        document.get("metadata", {}).get("name")
+        for document in filtered_projects
+    }
+    for app in governed_apps.get("apps", []):
+        project_name = app.get("project")
+        if project_name in governed_scope and project_name not in existing_project_names:
+            filtered_projects.append(synthesize_project(app))
+
+    filtered_services = [
+        document
+        for document in services
+        if document.get("metadata", {}).get("project") in governed_scope
+    ]
+    filtered_slos = [
+        document
+        for document in slos
+        if document.get("metadata", {}).get("project") in governed_scope
+    ]
+
+    needed_alert_policies = {
+        (document.get("metadata", {}).get("project"), alert_name)
+        for document in filtered_slos
+        for alert_name in document.get("spec", {}).get("alertPolicies", [])
+    }
+    filtered_alert_policies = [
+        document
+        for document in alert_policies
+        if (document.get("metadata", {}).get("project"), document.get("metadata", {}).get("name"))
+        in needed_alert_policies
+    ]
 
     if CATALOG_ROOT.exists():
         shutil.rmtree(CATALOG_ROOT)
     CATALOG_ROOT.mkdir(parents=True, exist_ok=True)
 
-    for document in projects:
+    for document in filtered_projects:
         write_yaml(project_path(document), clean_document(document))
-    for document in services:
+    for document in filtered_services:
         write_yaml(service_path(document), clean_document(document))
-    for document in alert_policies:
+    for document in filtered_alert_policies:
         write_yaml(alert_policy_path(document), clean_document(document))
-    for document in slos:
+    for document in filtered_slos:
         write_yaml(slo_path(document), clean_document(document))
 
     print(
-        f"Wrote {len(projects)} projects, {len(services)} services, "
-        f"{len(alert_policies)} alert policies, and {len(slos)} SLOs into {CATALOG_ROOT}"
+        f"Wrote {len(filtered_projects)} governed projects, {len(filtered_services)} services, "
+        f"{len(filtered_alert_policies)} alert policies, and {len(filtered_slos)} SLOs into {CATALOG_ROOT}"
     )
     return 0
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

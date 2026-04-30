@@ -1,5 +1,0 @@
-apiVersion: n9/v1alpha
-kind: Project
-metadata:
-  displayName: GS-Sandbox Project
-  name: gs-sandbox-project

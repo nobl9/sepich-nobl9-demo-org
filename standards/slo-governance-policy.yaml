@@ -16,6 +16,15 @@ governance_model:
     - team-local-review
     - design-time-slo-creation
 
+inventory_selection:
+  auto_include_if_app_tier_in:
+    - tier1
+  app_criticality_field: business_criticality_tier
+  app_id_label: app-id
+  project_name_suffix: -demo
+  service_tier_label: service-tier
+  default_service_tier: tier3
+
 release_gate:
   enforce_at_pr: false
   enforce_at_deploy: true
@@ -69,4 +78,3 @@ exceptions:
     - reason
     - owner
     - expires_on
-
