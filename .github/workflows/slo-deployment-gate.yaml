@@ -1,0 +1,92 @@
+name: Nobl9 Deployment Gate
+
+on:
+  workflow_dispatch:
+    inputs:
+      app_id:
+        description: "Optional governed application ID from governed-apps.yaml"
+        required: false
+        type: string
+      project:
+        description: "Optional governed Nobl9 project name"
+        required: false
+        type: string
+      service:
+        description: "Optional governed service name"
+        required: false
+        type: string
+      environment:
+        description: "Deployment environment label"
+        required: true
+        default: production
+        type: string
+  workflow_call:
+    inputs:
+      app_id:
+        description: "Optional governed application ID from governed-apps.yaml"
+        required: false
+        type: string
+      project:
+        description: "Optional governed Nobl9 project name"
+        required: false
+        type: string
+      service:
+        description: "Optional governed service name"
+        required: false
+        type: string
+      environment:
+        description: "Deployment environment label"
+        required: false
+        default: production
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nobl9-deployment-gate-${{ inputs.environment || 'production' }}-${{ inputs.project || inputs.app_id || 'unknown-target' }}-${{ inputs.service || 'all-services' }}
+  cancel-in-progress: false
+
+jobs:
+  gate:
+    name: Evaluate Deployment Gate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Publish deployment gate summary
+        shell: bash
+        run: |
+          args=(--environment "${{ inputs.environment || 'production' }}" --markdown)
+          if [ -n "${{ inputs.app_id }}" ]; then
+            args+=(--app-id "${{ inputs.app_id }}")
+          fi
+          if [ -n "${{ inputs.project }}" ]; then
+            args+=(--project "${{ inputs.project }}")
+          fi
+          if [ -n "${{ inputs.service }}" ]; then
+            args+=(--service "${{ inputs.service }}")
+          fi
+          python3 scripts/slo_governance.py deploy-gate "${args[@]}" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Enforce deployment gate
+        shell: bash
+        run: |
+          args=(--environment "${{ inputs.environment || 'production' }}")
+          if [ -n "${{ inputs.app_id }}" ]; then
+            args+=(--app-id "${{ inputs.app_id }}")
+          fi
+          if [ -n "${{ inputs.project }}" ]; then
+            args+=(--project "${{ inputs.project }}")
+          fi
+          if [ -n "${{ inputs.service }}" ]; then
+            args+=(--service "${{ inputs.service }}")
+          fi
+          python3 scripts/slo_governance.py deploy-gate "${args[@]}"

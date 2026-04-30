@@ -7,6 +7,12 @@ on:
         description: "Optional RFC3339 timestamp to replay SLO history from"
         required: false
         type: string
+  workflow_call:
+    inputs:
+      replay_from:
+        description: "Optional RFC3339 timestamp to replay SLO history from"
+        required: false
+        type: string
 
 permissions:
   contents: read

@@ -1,5 +1,0 @@
-apiVersion: n9/v1alpha
-kind: Project
-metadata:
-  displayName: test-target-2
-  name: test-target-2

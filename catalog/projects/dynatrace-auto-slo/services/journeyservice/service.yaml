@@ -1,8 +1,0 @@
-apiVersion: n9/v1alpha
-kind: Service
-metadata:
-  displayName: JourneyService
-  name: journeyservice
-  project: dynatrace-auto-slo
-spec:
-  description: ''

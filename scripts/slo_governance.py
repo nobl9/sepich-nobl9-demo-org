@@ -129,6 +129,123 @@ def exception_is_active(item: dict) -> bool:
     return expires_on >= date.today().isoformat()
 
 
+def governed_apps_by_project(inventory: dict) -> dict[str, dict]:
+    return {
+        app.get("project"): app
+        for app in inventory.get("apps", [])
+        if app.get("project")
+    }
+
+
+def governed_apps_by_app_id(inventory: dict) -> dict[str, dict]:
+    return {
+        app.get("app_id"): app
+        for app in inventory.get("apps", [])
+        if app.get("app_id")
+    }
+
+
+def service_tier(service: Resource) -> str | None:
+    values = service.labels.get("service-tier", [])
+    return values[0] if values else None
+
+
+def build_indexes(
+    resources: list[Resource],
+) -> tuple[dict[tuple[str, str], Resource], dict[tuple[str, str], list[Resource]], dict[tuple[str, str], Resource]]:
+    services: dict[tuple[str, str], Resource] = {
+        (resource.project, resource.name): resource
+        for resource in resources
+        if resource.kind == "Service"
+    }
+    slos_by_service: dict[tuple[str, str], list[Resource]] = defaultdict(list)
+    alert_policies: dict[tuple[str, str], Resource] = {
+        (resource.project, resource.name): resource
+        for resource in resources
+        if resource.kind == "AlertPolicy"
+    }
+    for resource in resources:
+        if resource.kind == "SLO":
+            slos_by_service[(resource.project, resource.spec.get("service"))].append(resource)
+    return services, slos_by_service, alert_policies
+
+
+def evaluate_service(
+    service: Resource,
+    slos_by_service: dict[tuple[str, str], list[Resource]],
+    policy: dict,
+    exception_lookup: dict[tuple[str, str], dict],
+    alert_policies: dict[tuple[str, str], Resource] | None = None,
+) -> tuple[list[str], list[str]]:
+    errors: list[str] = []
+    warnings: list[str] = []
+
+    service_key = (service.project, service.name)
+    exception = exception_lookup.get(service_key)
+    exception_active = bool(exception and exception_is_active(exception))
+    required_labels = policy.get("required_metadata_labels", [])
+    tier_defaults = policy.get("service_tiers", {})
+
+    missing_labels = [label for label in required_labels if not service.labels.get(label)]
+    if missing_labels:
+        message = (
+            f"Governed service missing required labels: {service.project}/{service.name} -> "
+            + ", ".join(missing_labels)
+        )
+        if exception_active:
+            warnings.append(message + f" (exception {exception.get('id')} active)")
+        else:
+            errors.append(message)
+
+    tier = service_tier(service)
+    required_categories = tier_defaults.get(tier, {}).get("required_slos", [])
+    service_slos = slos_by_service.get(service_key, [])
+    coverage = {
+        category
+        for slo in service_slos
+        for category in (
+            classify_objective(objective) for objective in slo.spec.get("objectives", [])
+        )
+        if category
+    }
+    missing_categories = sorted(set(required_categories) - coverage)
+    if missing_categories:
+        message = (
+            f"Governed service missing required SLO coverage: {service.project}/{service.name} -> "
+            + ", ".join(missing_categories)
+        )
+        if exception_active:
+            warnings.append(message + f" (exception {exception.get('id')} active)")
+        else:
+            errors.append(message)
+
+    if alert_policies is not None:
+        hidden_alerts = sorted(
+            {
+                alert_name
+                for slo in service_slos
+                for alert_name in slo.spec.get("alertPolicies", [])
+                if (service.project, alert_name) in alert_policies
+                and contains_hidden_placeholder(alert_policies[(service.project, alert_name)].document)
+            }
+        )
+        if hidden_alerts:
+            errors.append(
+                f"Governed service references alert policies with hidden placeholders: "
+                f"{service.project}/{service.name} -> {', '.join(hidden_alerts)}"
+            )
+
+    return errors, warnings
+
+
+def project_resources(resources: list[Resource], project: str) -> list[Resource]:
+    return [
+        resource
+        for resource in resources
+        if (resource.kind == "Project" and resource.name == project) or resource.project == project
+    ]
+
+
 def validate(resources: list[Resource]) -> list[str]:
     errors: list[str] = []
     if not resources:
@@ -241,68 +358,38 @@ def apply_readiness(resources: list[Resource]) -> tuple[list[str], list[str]]:
     policy = load_policy()
     inventory = load_inventory()
     exception_lookup = build_exception_lookup()
+    services, slos_by_service, _ = build_indexes(resources)
 
-    services: dict[tuple[str, str], Resource] = {
-        (resource.project, resource.name): resource
-        for resource in resources
-        if resource.kind == "Service"
+    governed_projects = {
+        app.get("project")
+        for app in inventory.get("apps", [])
+        if app.get("project")
     }
-    slos_by_service: dict[tuple[str, str], list[Resource]] = defaultdict(list)
-    for resource in resources:
-        if resource.kind == "SLO":
-            slos_by_service[(resource.project, resource.spec.get("service"))].append(resource)
 
-    required_labels = policy.get("required_metadata_labels", [])
-    tier_defaults = policy.get("service_tiers", {})
+    for project in sorted(governed_projects):
+        project_services = sorted(
+            [
+                service
+                for (service_project, _), service in services.items()
+                if service_project == project
+            ],
+            key=lambda service: service.name,
+        )
+        if not project_services:
+            warnings.append(
+                f"Governed project has no services in catalog yet: {project} (project bootstrap only)"
+            )
+            continue
 
-    for app in inventory.get("apps", []):
-        project = app.get("project")
-        for governed_service in app.get("services", []):
-            service_name = governed_service.get("service")
-            service_key = (project, service_name)
-            exception = exception_lookup.get(service_key)
-            exception_active = bool(exception and exception_is_active(exception))
-
-            if service_key not in services:
-                message = f"Governed service missing from catalog: {project}/{service_name}"
-                if exception_active:
-                    warnings.append(message + f" (exception {exception.get('id')} active)")
-                else:
-                    errors.append(message)
-                continue
-
-            service = services[service_key]
-            missing_labels = [label for label in required_labels if not service.labels.get(label)]
-            if missing_labels:
-                message = (
-                    f"Governed service missing required labels: {project}/{service_name} -> "
-                    + ", ".join(missing_labels)
-                )
-                if exception_active:
-                    warnings.append(message + f" (exception {exception.get('id')} active)")
-                else:
-                    errors.append(message)
-
-            tier = governed_service.get("tier")
-            required_categories = governed_service.get("required_slos") or tier_defaults.get(tier, {}).get("required_slos", [])
-            coverage = {
-                category
-                for slo in slos_by_service.get(service_key, [])
-                for category in (
-                    classify_objective(objective) for objective in slo.spec.get("objectives", [])
-                )
-                if category
-            }
-            missing_categories = sorted(set(required_categories) - coverage)
-            if missing_categories:
-                message = (
-                    f"Governed service missing required SLO coverage: {project}/{service_name} -> "
-                    + ", ".join(missing_categories)
-                )
-                if exception_active:
-                    warnings.append(message + f" (exception {exception.get('id')} active)")
-                else:
-                    errors.append(message)
+        for service in project_services:
+            service_errors, service_warnings = evaluate_service(
+                service,
+                slos_by_service,
+                policy,
+                exception_lookup,
+            )
+            errors.extend(service_errors)
+            warnings.extend(service_warnings)
 
     return errors, warnings
 
@@ -369,6 +456,102 @@ def inventory(resources: list[Resource], markdown: bool = False) -> str:
     return "\n".join(lines)
 
 
+def deploy_gate(
+    resources: list[Resource],
+    app_id: str | None,
+    project: str | None,
+    service: str | None,
+    environment: str,
+) -> tuple[bool, list[str], list[str], list[str]]:
+    infos: list[str] = []
+    warnings: list[str] = []
+    errors: list[str] = []
+
+    inventory_data = load_inventory()
+    policy = load_policy()
+    exception_lookup = build_exception_lookup()
+    apps_by_project = governed_apps_by_project(inventory_data)
+    apps_by_app_id = governed_apps_by_app_id(inventory_data)
+
+    resolved_app = None
+    if app_id:
+        resolved_app = apps_by_app_id.get(app_id)
+        if not resolved_app:
+            infos.append(
+                f"App `{app_id}` is not in governed scope for environment `{environment}`. Deployment gate passes."
+            )
+            return True, infos, warnings, errors
+
+    if project:
+        project_app = apps_by_project.get(project)
+        if not project_app:
+            infos.append(
+                f"Project `{project}` is not in governed scope for environment `{environment}`. Deployment gate passes."
+            )
+            return True, infos, warnings, errors
+        if resolved_app and resolved_app.get("project") != project:
+            errors.append(
+                f"Provided app_id `{app_id}` resolves to project `{resolved_app.get('project')}`, not `{project}`."
+            )
+            return False, infos, warnings, errors
+        resolved_app = project_app
+
+    if not resolved_app:
+        errors.append("Provide either --app-id or --project to evaluate the deployment gate.")
+        return False, infos, warnings, errors
+
+    target_project = resolved_app.get("project")
+    infos.append(
+        f"Evaluating governed deployment target `{target_project}` for environment `{environment}`."
+    )
+
+    scoped_resources = project_resources(resources, target_project)
+    scoped_validation_errors = validate(scoped_resources)
+    if scoped_validation_errors:
+        errors.extend(scoped_validation_errors)
+        return False, infos, warnings, errors
+
+    services, slos_by_service, alert_policies = build_indexes(scoped_resources)
+    project_services = sorted(
+        [svc for (svc_project, _), svc in services.items() if svc_project == target_project],
+        key=lambda svc: svc.name,
+    )
+
+    if service:
+        target_service = services.get((target_project, service))
+        if not target_service:
+            errors.append(
+                f"Governed deployment target is missing service `{service}` in project `{target_project}`."
+            )
+            return False, infos, warnings, errors
+        selected_services = [target_service]
+    else:
+        selected_services = project_services
+
+    if not selected_services:
+        errors.append(
+            f"Governed project `{target_project}` has no services in catalog yet. Bootstrap exists, but deployment is blocked until service definitions and SLOs are added."
+        )
+        return False, infos, warnings, errors
+
+    for selected_service in selected_services:
+        service_errors, service_warnings = evaluate_service(
+            selected_service,
+            slos_by_service,
+            policy,
+            exception_lookup,
+            alert_policies,
+        )
+        errors.extend(service_errors)
+        warnings.extend(service_warnings)
+
+    passed = not errors
+    if passed:
+        target_label = f"{target_project}/{service}" if service else target_project
+        infos.append(f"Deployment gate passed for `{target_label}`.")
+    return passed, infos, warnings, errors
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Validate and summarize Nobl9 SLO governance manifests.")
     subcommands = parser.add_subparsers(dest="command", required=True)
@@ -380,6 +563,20 @@ def build_parser() -> argparse.ArgumentParser:
 
     inventory_parser = subcommands.add_parser("inventory", help="Print the catalog inventory.")
     inventory_parser.add_argument("--markdown", action="store_true", help="Print markdown output.")
+
+    deploy_gate_parser = subcommands.add_parser(
+        "deploy-gate",
+        help="Evaluate whether a governed app or service is allowed to deploy.",
+    )
+    deploy_gate_parser.add_argument("--app-id", help="Governed application ID from governed-apps.yaml.")
+    deploy_gate_parser.add_argument("--project", help="Governed Nobl9 project name.")
+    deploy_gate_parser.add_argument("--service", help="Optional service name within the governed project.")
+    deploy_gate_parser.add_argument(
+        "--environment",
+        default="production",
+        help="Deployment environment label for reporting purposes.",
+    )
+    deploy_gate_parser.add_argument("--markdown", action="store_true", help="Print markdown output.")
 
     return parser
 
@@ -424,6 +621,33 @@ def main() -> int:
     if args.command == "inventory":
         print(inventory(resources, markdown=args.markdown))
         return 0
+
+    if args.command == "deploy-gate":
+        passed, infos, warnings, errors = deploy_gate(
+            resources,
+            app_id=args.app_id,
+            project=args.project,
+            service=args.service,
+            environment=args.environment,
+        )
+        if args.markdown:
+            print("## Deployment Gate")
+            print("")
+            print(f"- Status: `{'passed' if passed else 'blocked'}`")
+            for info in infos:
+                print(f"- Info: {info}")
+            for warning in warnings:
+                print(f"- Warning: {warning}")
+            for error in errors:
+                print(f"- Error: {error}")
+        else:
+            for info in infos:
+                print(f"INFO: {info}")
+            for warning in warnings:
+                print(f"WARNING: {warning}")
+            for error in errors:
+                print(f"ERROR: {error}", file=sys.stderr)
+        return 0 if passed else 1
 
     parser.error(f"unsupported command {args.command}")
     return 2

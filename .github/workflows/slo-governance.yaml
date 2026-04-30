@@ -10,6 +10,7 @@ on:
       - "catalog/**"
       - "exceptions/**"
       - "docs/**"
+      - "scripts/sync_governed_apps.py"
       - "scripts/sync_nobl9_catalog.py"
       - "scripts/slo_governance.py"
       - ".github/workflows/slo-*.yaml"

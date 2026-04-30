@@ -1,8 +1,0 @@
-apiVersion: n9/v1alpha
-kind: Service
-metadata:
-  displayName: Add to Cart
-  name: add-to-cart
-  project: demo
-spec:
-  description: ''
