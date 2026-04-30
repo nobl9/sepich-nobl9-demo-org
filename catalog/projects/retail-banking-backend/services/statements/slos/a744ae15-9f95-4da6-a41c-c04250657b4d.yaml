@@ -1,0 +1,35 @@
+apiVersion: n9/v1alpha
+kind: SLO
+metadata:
+  displayName: View Statements Success Rate
+  name: a744ae15-9f95-4da6-a41c-c04250657b4d
+  project: retail-banking-backend
+spec:
+  budgetingMethod: Occurrences
+  description: ''
+  indicator:
+    metricSource:
+      kind: Direct
+      name: n9-partner-sample-app
+      project: integrations
+  objectives:
+  - countMetrics:
+      good:
+        gcm:
+          projectId: n9-partner-sample-app
+          promql: sum(rate(app_frontend_requests_total{target="/api/checkout",status="200"}[1m]))
+      incremental: false
+      total:
+        gcm:
+          projectId: n9-partner-sample-app
+          promql: sum(rate(app_frontend_requests_total{target="/api/checkout"}[1m]))
+    displayName: Statements Success Rate
+    name: objective-1
+    primary: false
+    target: 0.999
+    value: 0
+  service: statements
+  timeWindows:
+  - count: 28
+    isRolling: true
+    unit: Day

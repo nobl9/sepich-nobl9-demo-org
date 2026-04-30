@@ -1,0 +1,30 @@
+apiVersion: n9/v1alpha
+kind: SLO
+metadata:
+  displayName: Submit Booking Latency
+  name: submit-reservation-latency
+  project: bookings
+spec:
+  budgetingMethod: Occurrences
+  description: Latency of submittion of reservation
+  indicator:
+    metricSource:
+      kind: Direct
+      name: glitchy-zoomies
+      project: integrations
+  objectives:
+  - displayName: Latency
+    name: objective-1
+    op: lte
+    rawMetric:
+      query:
+        gcm:
+          projectId: glitchy-zoomies
+          promql: 1000 * histogram_quantile(0.90, sum by (le) (rate(demo_request_duration_seconds_bucket{service="payments",path="/work"}[1m])))
+    target: 0.95
+    value: 500
+  service: submit-reservation
+  timeWindows:
+  - count: 28
+    isRolling: true
+    unit: Day

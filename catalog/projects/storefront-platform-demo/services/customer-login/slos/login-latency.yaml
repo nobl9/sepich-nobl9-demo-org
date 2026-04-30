@@ -1,0 +1,41 @@
+apiVersion: n9/v1alpha
+kind: SLO
+metadata:
+  displayName: Login p90 Latency
+  labels:
+    app-id:
+    - storefront-platform-app
+    critical-app:
+    - 'true'
+    owner:
+    - demo-platform
+    service-tier:
+    - tier1
+  name: login-latency
+  project: storefront-platform-demo
+spec:
+  alertPolicies:
+  - login-latency-fast-burn
+  budgetingMethod: Occurrences
+  description: p90 latency SLO for the customer login flow.
+  indicator:
+    metricSource:
+      kind: Direct
+      name: glitchy-zoomies
+      project: integrations
+  objectives:
+  - displayName: p90 under 250 milliseconds
+    name: latency
+    op: lte
+    rawMetric:
+      query:
+        gcm:
+          projectId: glitchy-zoomies
+          promql: 1000 * histogram_quantile(0.90, sum by (le) (rate(demo_request_duration_seconds_bucket{service="login",path="/work"}[1m])))
+    target: 0.95
+    value: 250
+  service: customer-login
+  timeWindows:
+  - count: 7
+    isRolling: true
+    unit: Day

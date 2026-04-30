@@ -1,26 +1,21 @@
 name: Nobl9 Org Governance
 
 on:
-  pull_request:
-    paths:
-      - "catalog/**"
-      - "docs/**"
-      - "scripts/export_nobl9_catalog.py"
-      - "scripts/slo_governance.py"
-      - ".github/workflows/slo-*.yaml"
-      - "Makefile"
-      - "README.md"
   push:
     branches:
       - main
     paths:
+      - "standards/**"
+      - "inventory/**"
       - "catalog/**"
+      - "exceptions/**"
       - "docs/**"
-      - "scripts/export_nobl9_catalog.py"
+      - "scripts/sync_nobl9_catalog.py"
       - "scripts/slo_governance.py"
       - ".github/workflows/slo-*.yaml"
       - "Makefile"
       - "README.md"
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -78,4 +73,4 @@ jobs:
           SLOCTL_FILES_PROMPT_ENABLED: "false"
         run: |
           python3 scripts/slo_governance.py apply-readiness
-          sloctl --no-config-file apply --dry-run -y -f 'catalog/org/*.yaml'
+          sloctl --no-config-file apply --dry-run -y -f 'catalog/projects/**/*.yaml'

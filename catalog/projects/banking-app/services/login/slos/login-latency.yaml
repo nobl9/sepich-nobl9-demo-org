@@ -1,0 +1,36 @@
+apiVersion: n9/v1alpha
+kind: SLO
+metadata:
+  displayName: Login Latency
+  labels:
+    api:
+    - 'true'
+  name: login-latency
+  project: banking-app
+spec:
+  alertPolicies:
+  - 10-error-budget-drop-over-10-min
+  budgetingMethod: Occurrences
+  description: Latency on a user logging in
+  indicator:
+    metricSource:
+      kind: Direct
+      name: appdynamics
+      project: integrations
+  objectives:
+  - displayName: Latency
+    name: login-latency
+    op: lt
+    primary: false
+    rawMetric:
+      query:
+        appDynamics:
+          applicationName: samplenodeapp
+          metricPath: Overall Application Performance|Average Response Time (ms)
+    target: 0.99
+    value: 475
+  service: login
+  timeWindows:
+  - count: 28
+    isRolling: true
+    unit: Day

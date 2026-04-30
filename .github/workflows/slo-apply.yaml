@@ -59,7 +59,7 @@ jobs:
           SLOCTL_CLIENT_ID: ${{ secrets.NOBL9_CLIENT_ID }}
           SLOCTL_CLIENT_SECRET: ${{ secrets.NOBL9_CLIENT_SECRET }}
           SLOCTL_FILES_PROMPT_ENABLED: "false"
-        run: sloctl --no-config-file apply -y -f 'catalog/org/*.yaml'
+        run: sloctl --no-config-file apply -y -f 'catalog/projects/**/*.yaml'
 
       - name: Apply catalog and replay SLO history
         if: ${{ inputs.replay_from != '' }}
@@ -67,4 +67,4 @@ jobs:
           SLOCTL_CLIENT_ID: ${{ secrets.NOBL9_CLIENT_ID }}
           SLOCTL_CLIENT_SECRET: ${{ secrets.NOBL9_CLIENT_SECRET }}
           SLOCTL_FILES_PROMPT_ENABLED: "false"
-        run: sloctl --no-config-file apply -y -f 'catalog/org/*.yaml' --replay --from="${{ inputs.replay_from }}"
+        run: sloctl --no-config-file apply -y -f 'catalog/projects/**/*.yaml' --replay --from="${{ inputs.replay_from }}"

@@ -1,0 +1,13 @@
+apiVersion: n9/v1alpha
+kind: Service
+metadata:
+  displayName: Cancel Reservation
+  labels:
+    demo:
+    - 'yes'
+  name: cancel-reservation
+  project: consumer-reservations
+spec:
+  description: Service containing SLOs related to canceling reservations.
+  responsibleUsers:
+  - id: 00uef6bjarV2bLxnz416

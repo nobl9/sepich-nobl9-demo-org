@@ -1,0 +1,19 @@
+apiVersion: n9/v1alpha
+kind: AlertPolicy
+metadata:
+  displayName: Burn rate drop
+  labels:
+    team:
+    - blue
+  name: burn-rate-drop
+  project: pet-adoptions-website
+spec:
+  alertMethods: []
+  conditions:
+  - alertingWindow: 5m
+    measurement: averageBurnRate
+    op: gte
+    value: 20
+  coolDown: 5m
+  description: "There\u2019s been a significant spike in burn rate over a brief period."
+  severity: High

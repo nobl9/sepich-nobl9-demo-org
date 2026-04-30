@@ -1,0 +1,60 @@
+apiVersion: n9/v1alpha
+kind: SLO
+metadata:
+  displayName: Storefront Experience Latency Composite
+  labels:
+    app-id:
+    - storefront-platform-app
+    critical-app:
+    - 'true'
+    owner:
+    - demo-platform
+    service-tier:
+    - tier1
+  name: storefront-experience-latency-composite
+  project: storefront-platform-demo
+spec:
+  alertPolicies:
+  - storefront-experience-latency-composite-fast-burn
+  budgetingMethod: Occurrences
+  description: Composite SLO representing overall storefront latency across the critical
+    user-facing and dependency SLOs.
+  objectives:
+  - composite:
+      aggregation: Reliability
+      components:
+        objectives:
+        - objective: latency
+          project: storefront-platform-demo
+          slo: landing-page-latency
+          weight: 4
+          whenDelayed: CountAsBad
+        - objective: latency
+          project: storefront-platform-demo
+          slo: login-latency
+          weight: 2
+          whenDelayed: CountAsBad
+        - objective: latency
+          project: storefront-platform-demo
+          slo: payments-latency
+          weight: 2
+          whenDelayed: CountAsBad
+        - objective: latency
+          project: storefront-platform-demo
+          slo: inventory-latency
+          weight: 1
+          whenDelayed: CountAsBad
+        - objective: latency
+          project: storefront-platform-demo
+          slo: recommendations-latency
+          weight: 1
+          whenDelayed: CountAsBad
+      maxDelay: 15m
+    displayName: Storefront experience latency
+    name: latency-experience
+    target: 0.95
+  service: storefront
+  timeWindows:
+  - count: 7
+    isRolling: true
+    unit: Day

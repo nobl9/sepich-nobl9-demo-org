@@ -1,0 +1,60 @@
+apiVersion: n9/v1alpha
+kind: SLO
+metadata:
+  displayName: Storefront Experience Availability Composite
+  labels:
+    app-id:
+    - storefront-platform-app
+    critical-app:
+    - 'true'
+    owner:
+    - demo-platform
+    service-tier:
+    - tier1
+  name: storefront-experience-availability-composite
+  project: storefront-platform-demo
+spec:
+  alertPolicies:
+  - storefront-experience-availability-composite-fast-burn
+  budgetingMethod: Occurrences
+  description: Composite SLO representing overall storefront availability across the
+    critical user-facing and dependency SLOs.
+  objectives:
+  - composite:
+      aggregation: Reliability
+      components:
+        objectives:
+        - objective: availability
+          project: storefront-platform-demo
+          slo: landing-page-availability
+          weight: 4
+          whenDelayed: CountAsBad
+        - objective: availability
+          project: storefront-platform-demo
+          slo: login-availability
+          weight: 2
+          whenDelayed: CountAsBad
+        - objective: availability
+          project: storefront-platform-demo
+          slo: payments-availability
+          weight: 2
+          whenDelayed: CountAsBad
+        - objective: availability
+          project: storefront-platform-demo
+          slo: inventory-availability
+          weight: 1
+          whenDelayed: CountAsBad
+        - objective: availability
+          project: storefront-platform-demo
+          slo: recommendations-availability
+          weight: 1
+          whenDelayed: CountAsBad
+      maxDelay: 15m
+    displayName: Storefront experience availability
+    name: availability-experience
+    target: 0.995
+  service: storefront
+  timeWindows:
+  - count: 7
+    isRolling: true
+    unit: Day

@@ -1,0 +1,101 @@
+apiVersion: n9/v1alpha
+kind: SLO
+metadata:
+  displayName: Scheduled Dashboard - Completion Rate (Staging)
+  labels:
+    environment:
+    - staging
+  name: scheduled-dashboard-completion-staging
+  project: nobl9-slack-app
+spec:
+  budgetingMethod: Occurrences
+  description: 'User journey: SRE teams receive scheduled SLO dashboards in Slack
+    channels (daily/weekly)
+
+    What we measure: Completion rate of scheduled dashboard delivery jobs
+
+    Target: 95% of scheduled dashboard jobs complete successfully
+
+
+    Why this matters: Failed dashboard deliveries mean teams miss critical SLO status
+    updates
+
+    Why completion SLO: Async EventBridge-triggered job that must complete end-to-end
+
+    Why 95% (not 99%): Background job, non-blocking, can tolerate occasional failures
+    without immediate user impact
+
+
+    This measures the full journey:
+
+    - EventBridge triggers Lambda
+
+    - Lambda fetches schedule config from S3
+
+    - Lambda retrieves user credentials from SSM
+
+    - Lambda queries Nobl9 API for SLO data
+
+    - Lambda posts formatted dashboard to Slack channel
+
+
+    Good events: success
+
+    Total events: all scheduled dashboard executions (excludes schedule_not_found
+    which means schedule was deleted)
+
+    SLI = success / (success + system_error)
+
+    '
+  indicator:
+    metricSource:
+      kind: Direct
+      name: cloudwatch-n9slackapp
+      project: nobl9-slack-app
+  objectives:
+  - countMetrics:
+      good:
+        cloudWatch:
+          json: "[\n  {\n    \"Id\": \"success_metric\",\n    \"MetricStat\": {\n\
+            \      \"Metric\": {\n        \"Namespace\": \"Nobl9SlackApp\",\n    \
+            \    \"MetricName\": \"ScheduledDashboardDuration\",\n        \"Dimensions\"\
+            : [\n          {\"Name\": \"Environment\", \"Value\": \"staging\"},\n\
+            \          {\"Name\": \"Status\", \"Value\": \"success\"}\n        ]\n\
+            \      },\n      \"Period\": 60,\n      \"Stat\": \"SampleCount\"\n  \
+            \  },\n    \"ReturnData\": false\n  },\n  {\n    \"Id\": \"success_filled\"\
+            ,\n    \"Expression\": \"FILL(success_metric, 0)\",\n    \"Period\": 60,\n\
+            \    \"ReturnData\": true\n  }\n]\n"
+          region: eu-central-1
+      incremental: false
+      total:
+        cloudWatch:
+          json: "[\n  {\n    \"Id\": \"success_metric\",\n    \"MetricStat\": {\n\
+            \      \"Metric\": {\n        \"Namespace\": \"Nobl9SlackApp\",\n    \
+            \    \"MetricName\": \"ScheduledDashboardDuration\",\n        \"Dimensions\"\
+            : [\n          {\"Name\": \"Environment\", \"Value\": \"staging\"},\n\
+            \          {\"Name\": \"Status\", \"Value\": \"success\"}\n        ]\n\
+            \      },\n      \"Period\": 60,\n      \"Stat\": \"SampleCount\"\n  \
+            \  },\n    \"ReturnData\": false\n  },\n  {\n    \"Id\": \"system_error_metric\"\
+            ,\n    \"MetricStat\": {\n      \"Metric\": {\n        \"Namespace\":\
+            \ \"Nobl9SlackApp\",\n        \"MetricName\": \"ScheduledDashboardDuration\"\
+            ,\n        \"Dimensions\": [\n          {\"Name\": \"Environment\", \"\
+            Value\": \"staging\"},\n          {\"Name\": \"Status\", \"Value\": \"\
+            system_error\"}\n        ]\n      },\n      \"Period\": 60,\n      \"\
+            Stat\": \"SampleCount\"\n    },\n    \"ReturnData\": false\n  },\n  {\n\
+            \    \"Id\": \"success_total_filled\",\n    \"Expression\": \"FILL(success_metric,\
+            \ 0)\",\n    \"Period\": 60,\n    \"ReturnData\": false\n  },\n  {\n \
+            \   \"Id\": \"system_error_filled\",\n    \"Expression\": \"FILL(system_error_metric,\
+            \ 0)\",\n    \"Period\": 60,\n    \"ReturnData\": false\n  },\n  {\n \
+            \   \"Id\": \"total_sum\",\n    \"Expression\": \"success_total_filled\
+            \ + system_error_filled\",\n    \"Period\": 60,\n    \"ReturnData\": true\n\
+            \  }\n]\n"
+          region: eu-central-1
+    displayName: 95% Completion Rate
+    name: objective-1
+    target: 0.95
+    value: 0
+  service: slack-bot
+  timeWindows:
+  - count: 7
+    isRolling: true
+    unit: Day

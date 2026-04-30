@@ -1,0 +1,13 @@
+apiVersion: n9/v1alpha
+kind: Service
+metadata:
+  displayName: Call Center Infrastructure
+  labels:
+    demo:
+    - 'yes'
+  name: infrastructure
+  project: call-center
+spec:
+  description: Service containing SLOs related to Call Center infrastructure.
+  responsibleUsers:
+  - id: 00udz52enaMa5jKhf417

@@ -1,0 +1,30 @@
+apiVersion: n9/v1alpha
+kind: SLO
+metadata:
+  displayName: Get Quote Latency
+  name: get-quote-latency
+  project: opentelemetry-astronomy-shop
+spec:
+  budgetingMethod: Occurrences
+  description: ''
+  indicator:
+    metricSource:
+      kind: Direct
+      name: n9-partner-sample-app
+      project: integrations
+  objectives:
+  - displayName: ''
+    name: objective-1
+    op: lt
+    rawMetric:
+      query:
+        gcm:
+          projectId: n9-partner-sample-app
+          promql: histogram_quantile(0.95,increase(rpc_client_duration_milliseconds_bucket{rpc_method="GetQuote"}[1m]))
+    target: 0.99
+    value: 243
+  service: payment
+  timeWindows:
+  - count: 28
+    isRolling: true
+    unit: Day

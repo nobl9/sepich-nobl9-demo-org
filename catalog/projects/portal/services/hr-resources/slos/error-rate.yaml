@@ -1,0 +1,42 @@
+apiVersion: n9/v1alpha
+kind: SLO
+metadata:
+  displayName: Error Rate
+  labels:
+    onprem:
+    - 'true'
+    source:
+    - splunk
+  name: error-rate
+  project: portal
+spec:
+  budgetingMethod: Occurrences
+  description: Shows the amount of errors that we are getting in this app.
+  indicator:
+    metricSource:
+      kind: Direct
+      name: splunk
+      project: integrations
+  objectives:
+  - countMetrics:
+      good:
+        splunk:
+          query: search index=polakpotrafi-events source=udp:5072 sourcetype=syslog
+            status<400 | bucket _time span=1m | stats count as n9value by _time |
+            rename _time as n9time | fields n9time n9value
+      incremental: false
+      total:
+        splunk:
+          query: search index=polakpotrafi-events source=udp:5072 sourcetype=syslog
+            | bucket _time span=1m | stats count as n9value by _time | rename _time
+            as n9time | fields n9time n9value
+    displayName: Error Rate
+    name: error-rate
+    primary: false
+    target: 0.79
+    value: 0
+  service: hr-resources
+  timeWindows:
+  - count: 28
+    isRolling: true
+    unit: Day

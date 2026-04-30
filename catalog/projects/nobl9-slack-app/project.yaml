@@ -1,0 +1,10 @@
+apiVersion: n9/v1alpha
+kind: Project
+metadata:
+  displayName: Nobl9 Slack App
+  labels:
+    application:
+    - nobl9
+  name: nobl9-slack-app
+spec:
+  description: These are SLOs relating to the Nobl9 Slack Application

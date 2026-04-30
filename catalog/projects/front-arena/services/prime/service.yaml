@@ -1,0 +1,8 @@
+apiVersion: n9/v1alpha
+kind: Service
+metadata:
+  displayName: Ticker
+  name: prime
+  project: front-arena
+spec:
+  description: ''

@@ -1,0 +1,13 @@
+apiVersion: n9/v1alpha
+kind: Service
+metadata:
+  displayName: User Experience
+  labels:
+    demo:
+    - 'yes'
+  name: call-center-performance
+  project: call-center
+spec:
+  description: Service containing SLOs related to Call Center KPIs.
+  responsibleUsers:
+  - id: 00udz52enaMa5jKhf417

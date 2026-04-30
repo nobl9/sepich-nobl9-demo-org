@@ -1,0 +1,16 @@
+apiVersion: n9/v1alpha
+kind: Service
+metadata:
+  displayName: Backend
+  labels:
+    cloud:
+    - aws
+  name: backend
+  project: portal
+spec:
+  description: ''
+  responsibleUsers:
+  - id: 00udz52enaMa5jKhf417
+  - id: 00uef6bjarV2bLxnz416
+  - id: 00uepj1jnbLSAZqAB416
+  - id: 00usrfxbmO6kEJ2Wy416

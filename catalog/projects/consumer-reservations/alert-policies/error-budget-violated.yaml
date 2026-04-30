@@ -1,0 +1,16 @@
+apiVersion: n9/v1alpha
+kind: AlertPolicy
+metadata:
+  displayName: Error Budget Violated
+  name: error-budget-violated
+  project: consumer-reservations
+spec:
+  alertMethods: []
+  conditions:
+  - lastsFor: 30m
+    measurement: burnedBudget
+    op: gte
+    value: 1
+  coolDown: 5m
+  description: ''
+  severity: Medium

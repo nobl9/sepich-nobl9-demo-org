@@ -1,0 +1,10 @@
+apiVersion: n9/v1alpha
+kind: Service
+metadata:
+  displayName: Check Balance
+  name: check-balance
+  project: retail-banking-backend
+spec:
+  description: ''
+  responsibleUsers:
+  - id: 00udz52enaMa5jKhf417

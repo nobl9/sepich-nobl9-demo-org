@@ -1,0 +1,36 @@
+apiVersion: n9/v1alpha
+kind: SLO
+metadata:
+  displayName: Round-Trip Latency
+  name: a0463168-2f56-4a43-b883-99fcd6aec6a6
+  project: front-arena
+spec:
+  attachments:
+  - displayName: SLI Analysis
+    url: https://app.nobl9.com/sli-analyzer/analysis/2024-06-10-10-01-mjov/integrations?org=dansepich-2KadyONlKmHJ
+  - displayName: Datadog
+    url: https://app.datadoghq.com/dashboard/74f-v5j-a7w?fromUser=false&refresh_mode=sliding&from_ts=1733919938600&to_ts=1733923538600&live=true
+  budgetingMethod: Occurrences
+  description: ''
+  indicator:
+    metricSource:
+      kind: Direct
+      name: datadog
+      project: integrations
+  objectives:
+  - displayName: Latency
+    name: latency
+    op: lt
+    primary: false
+    rawMetric:
+      query:
+        datadog:
+          query: avg:synthetics.http.response.time{status_code_class:2xx OR status_code_class:3xx
+            AND location:aws:us-west-2}
+    target: 0.99
+    value: 300
+  service: prime
+  timeWindows:
+  - count: 28
+    isRolling: true
+    unit: Day

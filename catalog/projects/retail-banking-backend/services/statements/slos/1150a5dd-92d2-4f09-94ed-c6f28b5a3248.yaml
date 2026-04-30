@@ -1,0 +1,49 @@
+apiVersion: n9/v1alpha
+kind: SLO
+metadata:
+  displayName: Retail Banking
+  name: 1150a5dd-92d2-4f09-94ed-c6f28b5a3248
+  project: retail-banking-backend
+spec:
+  budgetingMethod: Timeslices
+  description: ''
+  objectives:
+  - composite:
+      aggregation: ErrorBudgetState
+      components:
+        objectives:
+        - objective: check-balance-latency
+          project: retail-banking-backend
+          slo: 0b5b3d2f-b64c-4d20-9280-d469fde9970d
+          weight: 1
+          whenDelayed: Ignore
+        - objective: objective-1
+          project: retail-banking-backend
+          slo: 8e2f0ba3-a984-49bf-b512-40d35e559429
+          weight: 1
+          whenDelayed: Ignore
+        - objective: login-latency
+          project: retail-banking-backend
+          slo: 02803482-605f-41a7-9f95-5914910bb520
+          weight: 1
+          whenDelayed: Ignore
+        - objective: objective-1
+          project: retail-banking-backend
+          slo: 7aaaab5f-a7bc-468a-a0ee-4b29c47df40a
+          weight: 1
+          whenDelayed: Ignore
+        - objective: objective-1
+          project: retail-banking-backend
+          slo: 4e1bff61-9e0e-4d2a-9d14-059afee99fa1
+          weight: 1
+          whenDelayed: Ignore
+      maxDelay: 1h
+    displayName: Composite objective
+    name: composite-objective
+    target: 0.99
+    timeSliceTarget: 0.9
+  service: statements
+  timeWindows:
+  - count: 28
+    isRolling: true
+    unit: Day

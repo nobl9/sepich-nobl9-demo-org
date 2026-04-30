@@ -1,0 +1,38 @@
+apiVersion: n9/v1alpha
+kind: SLO
+metadata:
+  displayName: Cart Availability
+  name: cart-availability
+  project: opentelemetry-astronomy-shop
+spec:
+  alertPolicies:
+  - fast-burn-alert-policy
+  attachments:
+  - displayName: SLI Analysis
+    url: https://app.nobl9.com/sli-analyzer/analysis/cart-availability-kzjs/gcm?org=gcp-training-mkGe06qumjIX
+  - displayName: Synthetic Test
+    url: https://console.cloud.google.com/monitoring/synthetic-monitoring/cart-availability-llpTgIcL0ls;duration=PT15M?cloudshell=true&hl=en&invt=AbwVnw&project=n9-partner-sample-app
+  budgetingMethod: Occurrences
+  description: ''
+  indicator:
+    metricSource:
+      kind: Direct
+      name: n9-partner-sample-app
+      project: integrations
+  objectives:
+  - displayName: Cart Availability
+    name: cart-availability
+    op: gte
+    primary: false
+    rawMetric:
+      query:
+        gcm:
+          projectId: n9-partner-sample-app
+          promql: avg(avg_over_time(monitoring_googleapis_com:uptime_check_check_passed{monitored_resource="cloud_run_revision",check_id="cart-availability-llpTgIcL0ls"}[1m]))
+    target: 0.99
+    value: 1
+  service: cart
+  timeWindows:
+  - count: 28
+    isRolling: true
+    unit: Day

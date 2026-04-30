@@ -1,0 +1,22 @@
+apiVersion: n9/v1alpha
+kind: Service
+metadata:
+  displayName: Recommendations Engine
+  labels:
+    app-id:
+    - storefront-platform-app
+    critical-app:
+    - 'true'
+    owner:
+    - dan-sepich
+    service-tier:
+    - tier2
+  name: recommendations-engine
+  project: storefront-platform-demo
+spec:
+  description: Personalization dependency used to demonstrate downstream suggestion
+    quality and latency changes.
+  reviewCycle:
+    rrule: FREQ=MONTHLY;BYMONTHDAY=24
+    startTime: 2026-05-24 12:00:00
+    timeZone: America/Chicago

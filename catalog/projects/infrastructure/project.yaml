@@ -1,0 +1,10 @@
+apiVersion: n9/v1alpha
+kind: Project
+metadata:
+  displayName: Infrastructure
+  labels:
+    demo:
+    - 'yes'
+  name: infrastructure
+spec:
+  description: Project for SLOs that are infrastructure aligned.

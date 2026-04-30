@@ -1,0 +1,16 @@
+apiVersion: n9/v1alpha
+kind: AlertPolicy
+metadata:
+  displayName: Alert me
+  name: alert-me
+  project: ergo
+spec:
+  alertMethods: []
+  conditions:
+  - alertingWindow: 5m
+    measurement: averageBurnRate
+    op: gte
+    value: 20
+  coolDown: 5m
+  description: "There\u2019s been a significant spike in burn rate over a brief period."
+  severity: High

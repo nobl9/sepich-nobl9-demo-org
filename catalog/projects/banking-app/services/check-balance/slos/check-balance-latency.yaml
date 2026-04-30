@@ -1,0 +1,34 @@
+apiVersion: n9/v1alpha
+kind: SLO
+metadata:
+  displayName: Check Balance Latency
+  labels:
+    api:
+    - 'true'
+  name: check-balance-latency
+  project: banking-app
+spec:
+  budgetingMethod: Occurrences
+  description: Latency on a user checking balance
+  indicator:
+    metricSource:
+      kind: Direct
+      name: appdynamics
+      project: integrations
+  objectives:
+  - displayName: Latency
+    name: check-balance-latency
+    op: lt
+    primary: false
+    rawMetric:
+      query:
+        appDynamics:
+          applicationName: samplenodeapp
+          metricPath: Overall Application Performance|Average Response Time (ms)
+    target: 0.995
+    value: 460
+  service: check-balance
+  timeWindows:
+  - count: 28
+    isRolling: true
+    unit: Day

@@ -1,0 +1,11 @@
+apiVersion: n9/v1alpha
+kind: Service
+metadata:
+  displayName: View Reservation
+  labels:
+    demo:
+    - 'yes'
+  name: view-reservation
+  project: consumer-reservations
+spec:
+  description: Service containing SLOs related to viewing reservations.

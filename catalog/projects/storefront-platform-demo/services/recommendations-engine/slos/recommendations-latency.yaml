@@ -1,0 +1,41 @@
+apiVersion: n9/v1alpha
+kind: SLO
+metadata:
+  displayName: Recommendations p90 Latency
+  labels:
+    app-id:
+    - storefront-platform-app
+    critical-app:
+    - 'true'
+    owner:
+    - demo-platform
+    service-tier:
+    - tier2
+  name: recommendations-latency
+  project: storefront-platform-demo
+spec:
+  alertPolicies:
+  - recommendations-latency-fast-burn
+  budgetingMethod: Occurrences
+  description: p90 latency SLO for the recommendations dependency.
+  indicator:
+    metricSource:
+      kind: Direct
+      name: glitchy-zoomies
+      project: integrations
+  objectives:
+  - displayName: p90 under 400 milliseconds
+    name: latency
+    op: lte
+    rawMetric:
+      query:
+        gcm:
+          projectId: glitchy-zoomies
+          promql: 1000 * histogram_quantile(0.90, sum by (le) (rate(demo_request_duration_seconds_bucket{service="recommendations",path="/work"}[1m])))
+    target: 0.95
+    value: 400
+  service: recommendations-engine
+  timeWindows:
+  - count: 7
+    isRolling: true
+    unit: Day

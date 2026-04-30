@@ -1,0 +1,17 @@
+apiVersion: n9/v1alpha
+kind: Service
+metadata:
+  displayName: Home Page
+  labels:
+    bu:
+    - Global Investment Research
+    cloud:
+    - aws
+    division:
+    - Research & Perspectives
+    engineering-service:
+    - ES000007
+  name: home-page
+  project: mobile-app
+spec:
+  description: ''

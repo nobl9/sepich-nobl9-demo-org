@@ -1,9 +1,9 @@
-CATALOG_GLOB = catalog/org/*.yaml
+CATALOG_GLOB = 'catalog/projects/**/*.yaml'
 
-.PHONY: export validate inventory readiness dry-run apply
+.PHONY: sync validate inventory readiness dry-run apply
 
-export:
-	python3 scripts/export_nobl9_catalog.py
+sync:
+	python3 scripts/sync_nobl9_catalog.py
 
 validate:
 	python3 scripts/slo_governance.py validate
@@ -16,8 +16,8 @@ readiness:
 
 dry-run:
 	python3 scripts/slo_governance.py apply-readiness
-	sloctl apply --dry-run -y -f '$(CATALOG_GLOB)'
+	sloctl apply --dry-run -y -f $(CATALOG_GLOB)
 
 apply:
 	python3 scripts/slo_governance.py apply-readiness
-	sloctl apply -y -f '$(CATALOG_GLOB)'
+	sloctl apply -y -f $(CATALOG_GLOB)

@@ -7,12 +7,16 @@ import sys
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
+from datetime import date
 
 import yaml
 
 
 ROOT = Path(__file__).resolve().parents[1]
-CATALOG_ROOT = ROOT / "catalog" / "org"
+CATALOG_ROOT = ROOT / "catalog" / "projects"
+POLICY_PATH = ROOT / "standards" / "slo-governance-policy.yaml"
+INVENTORY_PATH = ROOT / "inventory" / "governed-apps.yaml"
+EXCEPTIONS_PATH = ROOT / "exceptions" / "policy-exceptions.yaml"
 HIDDEN_PLACEHOLDER = "[hidden]"
 
 
@@ -35,6 +39,11 @@ class Resource:
     @property
     def key(self) -> tuple[str, str | None, str]:
         return (self.kind, self.project, self.name)
+
+
+def load_yaml(path: Path) -> dict:
+    with path.open("r", encoding="utf-8") as handle:
+        return yaml.safe_load(handle) or {}
 
 
 def load_resources() -> list[Resource]:
@@ -71,6 +80,53 @@ def contains_hidden_placeholder(value: object) -> bool:
     if isinstance(value, dict):
         return any(contains_hidden_placeholder(item) for item in value.values())
     return False
+
+
+def classify_objective(objective: dict) -> str | None:
+    candidates = [
+        str(objective.get("name", "")).lower(),
+        str(objective.get("displayName", "")).lower(),
+    ]
+    if any("availability" in item for item in candidates):
+        return "availability"
+    if any("latency" in item for item in candidates):
+        return "latency"
+    if objective.get("countMetrics"):
+        return "availability"
+    if objective.get("rawMetric") and "latency" in " ".join(candidates):
+        return "latency"
+    if objective.get("composite"):
+        if "latency" in " ".join(candidates):
+            return "latency"
+        if "availability" in " ".join(candidates):
+            return "availability"
+    return None
+
+
+def load_inventory() -> dict:
+    return load_yaml(INVENTORY_PATH)
+
+
+def load_policy() -> dict:
+    return load_yaml(POLICY_PATH)
+
+
+def load_exceptions() -> dict:
+    return load_yaml(EXCEPTIONS_PATH)
+
+
+def build_exception_lookup() -> dict[tuple[str, str], dict]:
+    exception_lookup: dict[tuple[str, str], dict] = {}
+    for item in load_exceptions().get("exceptions", []):
+        exception_lookup[(item.get("project"), item.get("service"))] = item
+    return exception_lookup
+
+
+def exception_is_active(item: dict) -> bool:
+    expires_on = item.get("expires_on")
+    if not expires_on:
+        return False
+    return expires_on >= date.today().isoformat()
 
 
 def validate(resources: list[Resource]) -> list[str]:
@@ -182,24 +238,71 @@ def apply_readiness(resources: list[Resource]) -> tuple[list[str], list[str]]:
             + ", ".join(hidden_alert_policies)
         )
 
-    unlabeled_projects = sorted(
-        resource.name for resource in resources if resource.kind == "Project" and not resource.labels
-    )
-    if unlabeled_projects:
-        warnings.append(
-            "Projects without labels: " + ", ".join(unlabeled_projects)
-        )
+    policy = load_policy()
+    inventory = load_inventory()
+    exception_lookup = build_exception_lookup()
 
-    services_without_review = sorted(
-        f"{resource.project}/{resource.name}"
+    services: dict[tuple[str, str], Resource] = {
+        (resource.project, resource.name): resource
         for resource in resources
-        if resource.kind == "Service" and not resource.spec.get("reviewCycle")
-    )
-    if services_without_review:
-        warnings.append(
-            "Services without reviewCycle: " + ", ".join(services_without_review[:20])
-            + (" ..." if len(services_without_review) > 20 else "")
-        )
+        if resource.kind == "Service"
+    }
+    slos_by_service: dict[tuple[str, str], list[Resource]] = defaultdict(list)
+    for resource in resources:
+        if resource.kind == "SLO":
+            slos_by_service[(resource.project, resource.spec.get("service"))].append(resource)
+
+    required_labels = policy.get("required_metadata_labels", [])
+    tier_defaults = policy.get("service_tiers", {})
+
+    for app in inventory.get("apps", []):
+        project = app.get("project")
+        for governed_service in app.get("services", []):
+            service_name = governed_service.get("service")
+            service_key = (project, service_name)
+            exception = exception_lookup.get(service_key)
+            exception_active = bool(exception and exception_is_active(exception))
+
+            if service_key not in services:
+                message = f"Governed service missing from catalog: {project}/{service_name}"
+                if exception_active:
+                    warnings.append(message + f" (exception {exception.get('id')} active)")
+                else:
+                    errors.append(message)
+                continue
+
+            service = services[service_key]
+            missing_labels = [label for label in required_labels if not service.labels.get(label)]
+            if missing_labels:
+                message = (
+                    f"Governed service missing required labels: {project}/{service_name} -> "
+                    + ", ".join(missing_labels)
+                )
+                if exception_active:
+                    warnings.append(message + f" (exception {exception.get('id')} active)")
+                else:
+                    errors.append(message)
+
+            tier = governed_service.get("tier")
+            required_categories = governed_service.get("required_slos") or tier_defaults.get(tier, {}).get("required_slos", [])
+            coverage = {
+                category
+                for slo in slos_by_service.get(service_key, [])
+                for category in (
+                    classify_objective(objective) for objective in slo.spec.get("objectives", [])
+                )
+                if category
+            }
+            missing_categories = sorted(set(required_categories) - coverage)
+            if missing_categories:
+                message = (
+                    f"Governed service missing required SLO coverage: {project}/{service_name} -> "
+                    + ", ".join(missing_categories)
+                )
+                if exception_active:
+                    warnings.append(message + f" (exception {exception.get('id')} active)")
+                else:
+                    errors.append(message)
 
     return errors, warnings
 

@@ -1,0 +1,54 @@
+apiVersion: n9/v1alpha
+kind: SLO
+metadata:
+  displayName: Event Handler - System Availability (Production)
+  labels:
+    environment:
+    - production
+  name: event-handler-availability-production
+  project: nobl9-slack-app
+spec:
+  budgetingMethod: Timeslices
+  description: 'User journey: Users open App Home, @mention the bot, or send DMs for
+    AI-powered queries
+
+    What we measure: System availability for Slack event processing
+
+    Target: 99% of time slices have availability at or above 99%
+
+
+    Why this matters: Failed events mean broken App Home, unresponsive @mentions,
+    and silent DM failures
+
+    Why 99%: Events include async AI processing and external API calls; slightly more
+    tolerance than slash commands
+
+
+    SLI: success / (success + system_error) over 1h window
+
+    No-traffic periods return 1.0 (100% available, no budget burn)
+
+    '
+  indicator:
+    metricSource:
+      kind: Agent
+      name: groundcover-n9slackapp
+      project: nobl9-slack-app
+  objectives:
+  - displayName: 99% System Availability
+    name: objective-1
+    op: gte
+    rawMetric:
+      query:
+        prometheus:
+          promql: sum(increase(n9slackapp_event_duration_milliseconds_count{environment="production",status="success"}[1h]))
+            / sum(increase(n9slackapp_event_duration_milliseconds_count{environment="production",status=~"success|system_error"}[1h]))
+            OR vector(1)
+    target: 0.99
+    timeSliceTarget: 0.99
+    value: 0.99
+  service: slack-bot
+  timeWindows:
+  - count: 7
+    isRolling: true
+    unit: Day

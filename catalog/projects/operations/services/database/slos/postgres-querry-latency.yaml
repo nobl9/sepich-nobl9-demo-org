@@ -1,0 +1,48 @@
+apiVersion: n9/v1alpha
+kind: SLO
+metadata:
+  displayName: Postgres Latency
+  labels:
+    cloud:
+    - aws
+    source:
+    - cloudwatch
+    team:
+    - red
+  name: postgres-querry-latency
+  project: operations
+spec:
+  alertPolicies:
+  - less-than-20
+  attachments:
+  - displayName: RunBook
+    url: http://www.google.com
+  budgetingMethod: Occurrences
+  description: ''
+  indicator:
+    metricSource:
+      kind: Direct
+      name: aws-direct-datasource
+      project: integrations
+  objectives:
+  - displayName: Good
+    name: objective-1
+    op: lte
+    primary: false
+    rawMetric:
+      query:
+        cloudWatch:
+          dimensions:
+          - name: DBInstanceIdentifier
+            value: main-rds-1-inst-a
+          metricName: ReadLatency
+          namespace: AWS/RDS
+          region: eu-central-1
+          stat: Average
+    target: 0.9
+    value: 0.001
+  service: database
+  timeWindows:
+  - count: 28
+    isRolling: true
+    unit: Day
