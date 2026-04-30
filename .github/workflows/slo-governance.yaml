@@ -1,0 +1,81 @@
+name: Nobl9 Org Governance
+
+on:
+  pull_request:
+    paths:
+      - "catalog/**"
+      - "docs/**"
+      - "scripts/export_nobl9_catalog.py"
+      - "scripts/slo_governance.py"
+      - ".github/workflows/slo-*.yaml"
+      - "Makefile"
+      - "README.md"
+  push:
+    branches:
+      - main
+    paths:
+      - "catalog/**"
+      - "docs/**"
+      - "scripts/export_nobl9_catalog.py"
+      - "scripts/slo_governance.py"
+      - ".github/workflows/slo-*.yaml"
+      - "Makefile"
+      - "README.md"
+
+permissions:
+  contents: read
+
+jobs:
+  repo-policy:
+    name: Repo Policy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Validate governance rules
+        run: python3 scripts/slo_governance.py validate
+
+      - name: Publish inventory summary
+        run: python3 scripts/slo_governance.py inventory --markdown >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publish apply-readiness summary
+        run: python3 scripts/slo_governance.py apply-readiness --markdown >> "$GITHUB_STEP_SUMMARY"
+
+  nobl9-dry-run:
+    name: Nobl9 Dry Run
+    needs: repo-policy
+    if: ${{ secrets.NOBL9_CLIENT_ID != '' && secrets.NOBL9_CLIENT_SECRET != '' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+
+      - name: Install sloctl
+        run: |
+          go install github.com/nobl9/sloctl/cmd/sloctl@latest
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
+      - name: Show sloctl version
+        run: sloctl version
+
+      - name: Dry run catalog against Nobl9
+        env:
+          SLOCTL_CLIENT_ID: ${{ secrets.NOBL9_CLIENT_ID }}
+          SLOCTL_CLIENT_SECRET: ${{ secrets.NOBL9_CLIENT_SECRET }}
+          SLOCTL_FILES_PROMPT_ENABLED: "false"
+        run: |
+          python3 scripts/slo_governance.py apply-readiness
+          sloctl --no-config-file apply --dry-run -y -f 'catalog/org/*.yaml'

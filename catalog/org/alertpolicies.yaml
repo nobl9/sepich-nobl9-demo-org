@@ -1,0 +1,853 @@
+- apiVersion: n9/v1alpha
+  kind: AlertPolicy
+  metadata:
+    labels:
+      composite-demo:
+      - composite-demo
+    name: slow-burn
+    project: e-commerce
+  spec:
+    alertMethods:
+    - apiVersion: n9/v1alpha
+      kind: AlertMethod
+      metadata:
+        name: email
+        project: e-commerce
+      spec:
+        description: ""
+        email:
+          to:
+          - jakub.gruszecki+email-e-commerce-nobl9-dogfood-dev-demo-1@nobl9.com
+    conditions:
+    - alertingWindow: 48h
+      measurement: averageBurnRate
+      op: gte
+      value: 1
+    - alertingWindow: 15m
+      measurement: averageBurnRate
+      op: gte
+      value: 2
+    coolDown: 5m
+    description: The budget is slowly exhausting and not recovering.
+    severity: Low
+- apiVersion: n9/v1alpha
+  kind: AlertPolicy
+  metadata:
+    displayName: Landing Page Availability Fast Burn
+    labels:
+      app-id:
+      - storefront-platform-app
+      critical-app:
+      - "true"
+      owner:
+      - demo-platform
+      service-tier:
+      - tier1
+    name: landing-page-availability-fast-burn
+    project: storefront-platform-demo
+  spec:
+    alertMethods: []
+    conditions:
+    - alertingWindow: 5m
+      measurement: averageBurnRate
+      op: gte
+      value: 20
+    coolDown: 5m
+    description: Fast burn alert policy for Landing Page availability.
+    severity: High
+- apiVersion: n9/v1alpha
+  kind: AlertPolicy
+  metadata:
+    displayName: Fast Burn Alert Policy
+    name: fast-burn-alert-policy
+    project: opentelemetry-astronomy-shop
+  spec:
+    alertMethods:
+    - apiVersion: n9/v1alpha
+      kind: AlertMethod
+      metadata:
+        displayName: Status Page Integration
+        name: status-page-integration
+        project: opentelemetry-astronomy-shop
+      spec:
+        description: ""
+        webhook:
+          headers:
+          - isSecret: false
+            name: Organization
+            value: dansepich-2KadyONlKmHJ
+          - isSecret: true
+            name: Authorization
+            value: "[hidden]"
+          templateFields:
+          - alert_policy_name
+          - alert_policy_description
+          - alert_policy_conditions_text
+          - project_name
+          - service_name
+          - slo_name
+          - organization
+          - objective_name
+          - severity
+          - timestamp
+          - slo_details_link
+          - iso_timestamp
+          - slo_labels_text
+          - service_labels_text
+          - alert_policy_labels_text
+          - alert_id
+          - no_data_alert_after
+          - anomaly_type
+          - alert_policy_conditions[]
+          url: "[hidden]"
+    conditions:
+    - alertingWindow: 5m
+      measurement: averageBurnRate
+      op: gte
+      value: 20
+    coolDown: 5m
+    description: There’s been a significant spike in burn rate over a brief period.
+    severity: High
+- apiVersion: n9/v1alpha
+  kind: AlertPolicy
+  metadata:
+    displayName: Storefront Experience Latency Composite Fast Burn
+    labels:
+      app-id:
+      - storefront-platform-app
+      critical-app:
+      - "true"
+      owner:
+      - demo-platform
+      service-tier:
+      - tier1
+    name: storefront-experience-latency-composite-fast-burn
+    project: storefront-platform-demo
+  spec:
+    alertMethods: []
+    conditions:
+    - alertingWindow: 5m
+      measurement: averageBurnRate
+      op: gte
+      value: 20
+    coolDown: 5m
+    description: Fast burn alert policy for the storefront experience latency composite SLO.
+    severity: High
+- apiVersion: n9/v1alpha
+  kind: AlertPolicy
+  metadata:
+    displayName: Payments p90 Latency Fast Burn
+    labels:
+      app-id:
+      - storefront-platform-app
+      critical-app:
+      - "true"
+      owner:
+      - demo-platform
+      service-tier:
+      - tier2
+    name: payments-latency-fast-burn
+    project: storefront-platform-demo
+  spec:
+    alertMethods: []
+    conditions:
+    - alertingWindow: 5m
+      measurement: averageBurnRate
+      op: gte
+      value: 20
+    coolDown: 5m
+    description: Fast burn alert policy for payments p90 latency.
+    severity: High
+- apiVersion: n9/v1alpha
+  kind: AlertPolicy
+  metadata:
+    displayName: Fast Burn
+    name: fast-burn
+    project: bookings
+  spec:
+    alertMethods: []
+    conditions:
+    - alertingWindow: 5m
+      measurement: averageBurnRate
+      op: gte
+      value: 20
+    coolDown: 5m
+    description: There’s been a significant spike in burn rate over a brief period.
+    severity: High
+- apiVersion: n9/v1alpha
+  kind: AlertPolicy
+  metadata:
+    displayName: Error Budget Drop
+    name: error-budget-drop
+    project: demo
+  spec:
+    alertMethods: []
+    conditions:
+    - alertingWindow: 15m
+      measurement: budgetDrop
+      op: gte
+      value: 0.1
+    coolDown: 5m
+    description: The budget dropped by 10% over the last 15 minutes and is not recovering.
+    severity: High
+- apiVersion: n9/v1alpha
+  kind: AlertPolicy
+  metadata:
+    displayName: Login Availability Fast Burn
+    labels:
+      app-id:
+      - storefront-platform-app
+      critical-app:
+      - "true"
+      owner:
+      - demo-platform
+      service-tier:
+      - tier1
+    name: login-availability-fast-burn
+    project: storefront-platform-demo
+  spec:
+    alertMethods: []
+    conditions:
+    - alertingWindow: 5m
+      measurement: averageBurnRate
+      op: gte
+      value: 20
+    coolDown: 5m
+    description: Fast burn alert policy for Login availability.
+    severity: High
+- apiVersion: n9/v1alpha
+  kind: AlertPolicy
+  metadata:
+    displayName: Alert me
+    name: alert-me
+    project: ergo
+  spec:
+    alertMethods: []
+    conditions:
+    - alertingWindow: 5m
+      measurement: averageBurnRate
+      op: gte
+      value: 20
+    coolDown: 5m
+    description: There’s been a significant spike in burn rate over a brief period.
+    severity: High
+- apiVersion: n9/v1alpha
+  kind: AlertPolicy
+  metadata:
+    displayName: 10x burn 1 hour
+    name: 10x-burn-1-hour
+    project: demo
+  spec:
+    alertMethods: []
+    conditions:
+    - lastsFor: 1h
+      measurement: averageBurnRate
+      op: gte
+      value: 10
+    coolDown: 5m
+    description: The budget is slowly exhausting and not recovering.
+    severity: Low
+- apiVersion: n9/v1alpha
+  kind: AlertPolicy
+  metadata:
+    displayName: Inventory p90 Latency Fast Burn
+    labels:
+      app-id:
+      - storefront-platform-app
+      critical-app:
+      - "true"
+      owner:
+      - demo-platform
+      service-tier:
+      - tier2
+    name: inventory-latency-fast-burn
+    project: storefront-platform-demo
+  spec:
+    alertMethods: []
+    conditions:
+    - alertingWindow: 5m
+      measurement: averageBurnRate
+      op: gte
+      value: 20
+    coolDown: 5m
+    description: Fast burn alert policy for inventory p90 latency.
+    severity: High
+- apiVersion: n9/v1alpha
+  kind: AlertPolicy
+  metadata:
+    displayName: Slow burn
+    name: slow-burn
+    project: mobile-app
+  spec:
+    alertMethods: []
+    conditions:
+    - lastsFor: 1h
+      measurement: averageBurnRate
+      op: gte
+      value: 20
+    coolDown: 5m
+    description: There’s been a significant spike in burn rate over a brief period.
+    severity: High
+- apiVersion: n9/v1alpha
+  kind: AlertPolicy
+  metadata:
+    displayName: 20% Remainig
+    labels:
+      composite-demo:
+      - composite-demo
+    name: 20-remainig
+    project: point-of-sale
+  spec:
+    alertMethods:
+    - apiVersion: n9/v1alpha
+      kind: AlertMethod
+      metadata:
+        name: email
+        project: e-commerce
+      spec:
+        description: ""
+        email:
+          to:
+          - jakub.gruszecki+email-e-commerce-nobl9-dogfood-dev-demo-1@nobl9.com
+    conditions:
+    - lastsFor: 10m
+      measurement: burnedBudget
+      op: gte
+      value: 0.8
+    coolDown: 5m
+    description: The error budget is nearly exhausted (20%).
+    severity: High
+- apiVersion: n9/v1alpha
+  kind: AlertPolicy
+  metadata:
+    labels:
+      composite-demo:
+      - composite-demo
+    name: slow-budget-drop
+    project: e-commerce
+  spec:
+    alertMethods:
+    - apiVersion: n9/v1alpha
+      kind: AlertMethod
+      metadata:
+        name: email
+        project: e-commerce
+      spec:
+        description: ""
+        email:
+          to:
+          - jakub.gruszecki+email-e-commerce-nobl9-dogfood-dev-demo-1@nobl9.com
+    conditions:
+    - alertingWindow: 1h
+      measurement: budgetDrop
+      op: gte
+      value: 0.05
+    coolDown: 5m
+    description: The budget dropped by 5% over the last 1 hour and is not recovering.
+    severity: Low
+- apiVersion: n9/v1alpha
+  kind: AlertPolicy
+  metadata:
+    displayName: less than 20%
+    name: less-than-20
+    project: operations
+  spec:
+    alertMethods: []
+    conditions:
+    - lastsFor: 1h
+      measurement: burnedBudget
+      op: gte
+      value: 0.8
+    coolDown: 5m
+    description: The error budget is nearly exhausted (20%).
+    severity: Low
+- apiVersion: n9/v1alpha
+  kind: AlertPolicy
+  metadata:
+    displayName: Fast Error Budget Drop
+    labels:
+      application:
+      - nobl9
+    name: fast-error-budget-drop
+    project: mobile-app
+  spec:
+    alertMethods:
+    - apiVersion: n9/v1alpha
+      kind: AlertMethod
+      metadata:
+        displayName: Custom Webhook
+        name: custom-webhook
+        project: demo
+      spec:
+        description: ""
+        webhook:
+          templateFields:
+          - alert_policy_name
+          - alert_policy_description
+          - alert_policy_conditions_text
+          - project_name
+          - service_name
+          - slo_name
+          - organization
+          - objective_name
+          - severity
+          - timestamp
+          - slo_details_link
+          - iso_timestamp
+          - slo_labels_text
+          - service_labels_text
+          - alert_policy_labels_text
+          - alert_policy_conditions[]
+          url: "[hidden]"
+    conditions:
+    - alertingWindow: 15m
+      measurement: budgetDrop
+      op: gte
+      value: 0.15
+    coolDown: 5m
+    description: The budget dropped by 10% over the last 15 minutes and is not recovering.
+    severity: High
+- apiVersion: n9/v1alpha
+  kind: AlertPolicy
+  metadata:
+    displayName: Critical!
+    labels:
+      team:
+      - sasha
+    name: critical
+    project: ergo
+  spec:
+    alertMethods:
+    - apiVersion: n9/v1alpha
+      kind: AlertMethod
+      metadata:
+        displayName: Email Sasha
+        name: email-sasha
+        project: ergo
+      spec:
+        description: ""
+        email:
+          to:
+          - sasha+noble@ergonautic.ly
+    conditions:
+    - lastsFor: 0m
+      measurement: burnedBudget
+      op: gte
+      value: 0.8
+    coolDown: 5m
+    description: The error budget is nearly exhausted (20%).
+    severity: High
+- apiVersion: n9/v1alpha
+  kind: AlertPolicy
+  metadata:
+    displayName: Slow Error Budget Drop
+    name: slow-error-budget-drop
+    project: mobile-app
+  spec:
+    alertMethods: []
+    conditions:
+    - alertingWindow: 1h
+      measurement: budgetDrop
+      op: gte
+      value: 0.05
+    coolDown: 5m
+    description: The budget dropped by 5% over the last 1 hour and is not recovering.
+    severity: Low
+- apiVersion: n9/v1alpha
+  kind: AlertPolicy
+  metadata:
+    displayName: Recommendations p90 Latency Fast Burn
+    labels:
+      app-id:
+      - storefront-platform-app
+      critical-app:
+      - "true"
+      owner:
+      - demo-platform
+      service-tier:
+      - tier2
+    name: recommendations-latency-fast-burn
+    project: storefront-platform-demo
+  spec:
+    alertMethods: []
+    conditions:
+    - alertingWindow: 5m
+      measurement: averageBurnRate
+      op: gte
+      value: 20
+    coolDown: 5m
+    description: Fast burn alert policy for recommendations p90 latency.
+    severity: High
+- apiVersion: n9/v1alpha
+  kind: AlertPolicy
+  metadata:
+    displayName: Slow Burn
+    name: slow-burn
+    project: demo
+  spec:
+    alertMethods: []
+    conditions:
+    - alertingWindow: 12h
+      measurement: averageBurnRate
+      op: gte
+      value: 1
+    - alertingWindow: 15m
+      measurement: averageBurnRate
+      op: gte
+      value: 2
+    coolDown: 5m
+    description: The budget is slowly exhausting and not recovering.
+    severity: Low
+- apiVersion: n9/v1alpha
+  kind: AlertPolicy
+  metadata:
+    displayName: Slow Error Budget Drop
+    name: slow-error-budget-drop
+    project: opentelemetry-astronomy-shop
+  spec:
+    alertMethods: []
+    conditions:
+    - alertingWindow: 1h
+      measurement: budgetDrop
+      op: gte
+      value: 0.05
+    coolDown: 5m
+    description: The budget dropped by 5% over the last 1 hour and is not recovering.
+    severity: Low
+- apiVersion: n9/v1alpha
+  kind: AlertPolicy
+  metadata:
+    displayName: 10% Error Budget Drop Over 10 Min
+    name: 10-error-budget-drop-over-10-min
+    project: banking-app
+  spec:
+    alertMethods: []
+    conditions:
+    - alertingWindow: 15m
+      measurement: budgetDrop
+      op: gte
+      value: 0.1
+    coolDown: 5m
+    description: The budget dropped by 10% over the last 15 minutes and is not recovering.
+    severity: High
+- apiVersion: n9/v1alpha
+  kind: AlertPolicy
+  metadata:
+    displayName: Burn rate drop
+    labels:
+      team:
+      - blue
+    name: burn-rate-drop
+    project: pet-adoptions-website
+  spec:
+    alertMethods: []
+    conditions:
+    - alertingWindow: 5m
+      measurement: averageBurnRate
+      op: gte
+      value: 20
+    coolDown: 5m
+    description: There’s been a significant spike in burn rate over a brief period.
+    severity: High
+- apiVersion: n9/v1alpha
+  kind: AlertPolicy
+  metadata:
+    displayName: Payments Availability Fast Burn
+    labels:
+      app-id:
+      - storefront-platform-app
+      critical-app:
+      - "true"
+      owner:
+      - demo-platform
+      service-tier:
+      - tier2
+    name: payments-availability-fast-burn
+    project: storefront-platform-demo
+  spec:
+    alertMethods: []
+    conditions:
+    - alertingWindow: 5m
+      measurement: averageBurnRate
+      op: gte
+      value: 20
+    coolDown: 5m
+    description: Fast burn alert policy for Payments availability.
+    severity: High
+- apiVersion: n9/v1alpha
+  kind: AlertPolicy
+  metadata:
+    displayName: budget drop 5%
+    name: budget-drop-5
+    project: consumer-reservations
+  spec:
+    alertMethods: []
+    conditions:
+    - alertingWindow: 15m
+      measurement: budgetDrop
+      op: gte
+      value: 0.05
+    coolDown: 5m
+    description: The budget dropped by 10% over the last 15 minutes and is not recovering.
+    severity: High
+- apiVersion: n9/v1alpha
+  kind: AlertPolicy
+  metadata:
+    displayName: Error Budget Violated
+    name: error-budget-violated
+    project: consumer-reservations
+  spec:
+    alertMethods: []
+    conditions:
+    - lastsFor: 30m
+      measurement: burnedBudget
+      op: gte
+      value: 1
+    coolDown: 5m
+    description: ""
+    severity: Medium
+- apiVersion: n9/v1alpha
+  kind: AlertPolicy
+  metadata:
+    displayName: Storefront Experience Availability Composite Fast Burn
+    labels:
+      app-id:
+      - storefront-platform-app
+      critical-app:
+      - "true"
+      owner:
+      - demo-platform
+      service-tier:
+      - tier1
+    name: storefront-experience-availability-composite-fast-burn
+    project: storefront-platform-demo
+  spec:
+    alertMethods: []
+    conditions:
+    - alertingWindow: 5m
+      measurement: averageBurnRate
+      op: gte
+      value: 20
+    coolDown: 5m
+    description: Fast burn alert policy for the storefront experience availability composite SLO.
+    severity: High
+- apiVersion: n9/v1alpha
+  kind: AlertPolicy
+  metadata:
+    displayName: Recommendations Availability Fast Burn
+    labels:
+      app-id:
+      - storefront-platform-app
+      critical-app:
+      - "true"
+      owner:
+      - demo-platform
+      service-tier:
+      - tier2
+    name: recommendations-availability-fast-burn
+    project: storefront-platform-demo
+  spec:
+    alertMethods: []
+    conditions:
+    - alertingWindow: 5m
+      measurement: averageBurnRate
+      op: gte
+      value: 20
+    coolDown: 5m
+    description: Fast burn alert policy for Recommendations availability.
+    severity: High
+- apiVersion: n9/v1alpha
+  kind: AlertPolicy
+  metadata:
+    displayName: 20% Remaining
+    name: 20-remaining
+    project: consumer-reservations
+  spec:
+    alertMethods:
+    - apiVersion: n9/v1alpha
+      kind: AlertMethod
+      metadata:
+        displayName: Slack App Webhook Test
+        name: slack-app-webhook-test
+        project: default
+      spec:
+        description: Test config for slack app
+        webhook:
+          headers:
+          - isSecret: true
+            name: X-Webhook-Secret
+            value: "[hidden]"
+          templateFields:
+          - alert_policy_name
+          - alert_policy_description
+          - alert_policy_conditions_text
+          - project_name
+          - service_name
+          - slo_name
+          - organization
+          - objective_name
+          - severity
+          - timestamp
+          - slo_details_link
+          - iso_timestamp
+          - slo_labels_text
+          - service_labels_text
+          - alert_policy_labels_text
+          - alert_id
+          - no_data_alert_after
+          - anomaly_type
+          - alert_policy_conditions[]
+          url: "[hidden]"
+    - apiVersion: n9/v1alpha
+      kind: AlertMethod
+      metadata:
+        name: email
+        project: e-commerce
+      spec:
+        description: ""
+        email:
+          to:
+          - jakub.gruszecki+email-e-commerce-nobl9-dogfood-dev-demo-1@nobl9.com
+    conditions:
+    - lastsFor: 0m
+      measurement: burnedBudget
+      op: gte
+      value: 0.8
+    coolDown: 5m
+    description: The error budget is nearly exhausted (20%).
+    severity: High
+- apiVersion: n9/v1alpha
+  kind: AlertPolicy
+  metadata:
+    displayName: Fast Burn
+    name: fast-burn
+    project: mobile-app
+  spec:
+    alertMethods: []
+    conditions:
+    - alertingWindow: 5m
+      measurement: averageBurnRate
+      op: gte
+      value: 10
+    coolDown: 5m
+    description: There’s been a significant spike in burn rate over a brief period.
+    severity: High
+- apiVersion: n9/v1alpha
+  kind: AlertPolicy
+  metadata:
+    displayName: 10% Error Budget Drop Over 10 Min
+    name: 10-error-budget-drop-over-10-min
+    project: consumer-reservations
+  spec:
+    alertMethods: []
+    conditions:
+    - alertingWindow: 15m
+      measurement: budgetDrop
+      op: gte
+      value: 0.1
+    coolDown: 5m
+    description: The budget dropped by 10% over the last 15 minutes and is not recovering.
+    severity: High
+- apiVersion: n9/v1alpha
+  kind: AlertPolicy
+  metadata:
+    displayName: Login p90 Latency Fast Burn
+    labels:
+      app-id:
+      - storefront-platform-app
+      critical-app:
+      - "true"
+      owner:
+      - demo-platform
+      service-tier:
+      - tier1
+    name: login-latency-fast-burn
+    project: storefront-platform-demo
+  spec:
+    alertMethods: []
+    conditions:
+    - alertingWindow: 5m
+      measurement: averageBurnRate
+      op: gte
+      value: 20
+    coolDown: 5m
+    description: Fast burn alert policy for login p90 latency.
+    severity: High
+- apiVersion: n9/v1alpha
+  kind: AlertPolicy
+  metadata:
+    displayName: Inventory Availability Fast Burn
+    labels:
+      app-id:
+      - storefront-platform-app
+      critical-app:
+      - "true"
+      owner:
+      - demo-platform
+      service-tier:
+      - tier2
+    name: inventory-availability-fast-burn
+    project: storefront-platform-demo
+  spec:
+    alertMethods: []
+    conditions:
+    - alertingWindow: 5m
+      measurement: averageBurnRate
+      op: gte
+      value: 20
+    coolDown: 5m
+    description: Fast burn alert policy for Inventory availability.
+    severity: High
+- apiVersion: n9/v1alpha
+  kind: AlertPolicy
+  metadata:
+    displayName: Landing Page p90 Latency Fast Burn
+    labels:
+      app-id:
+      - storefront-platform-app
+      critical-app:
+      - "true"
+      owner:
+      - demo-platform
+      service-tier:
+      - tier1
+    name: landing-page-latency-fast-burn
+    project: storefront-platform-demo
+  spec:
+    alertMethods: []
+    conditions:
+    - alertingWindow: 5m
+      measurement: averageBurnRate
+      op: gte
+      value: 20
+    coolDown: 5m
+    description: Fast burn alert policy for landing page p90 latency.
+    severity: High
+- apiVersion: n9/v1alpha
+  kind: AlertPolicy
+  metadata:
+    labels:
+      composite-demo:
+      - composite-demo
+    name: fast-budget-drop
+    project: e-commerce
+  spec:
+    alertMethods:
+    - apiVersion: n9/v1alpha
+      kind: AlertMethod
+      metadata:
+        name: email
+        project: e-commerce
+      spec:
+        description: ""
+        email:
+          to:
+          - jakub.gruszecki+email-e-commerce-nobl9-dogfood-dev-demo-1@nobl9.com
+    conditions:
+    - alertingWindow: 15m
+      measurement: budgetDrop
+      op: gte
+      value: 0.1
+    coolDown: 5m
+    description: The budget dropped by 10% over the last 15 minutes and is not recovering.
+    severity: High

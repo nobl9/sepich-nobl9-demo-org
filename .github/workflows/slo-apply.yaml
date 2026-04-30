@@ -1,0 +1,70 @@
+name: Apply Nobl9 Org Catalog
+
+on:
+  workflow_dispatch:
+    inputs:
+      replay_from:
+        description: "Optional RFC3339 timestamp to replay SLO history from"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nobl9-demo-org-apply
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    name: Apply Approved Catalog
+    runs-on: ubuntu-latest
+    environment: nobl9-demo
+
+    steps:
+      - name: Require the main branch
+        run: |
+          if [ "${GITHUB_REF_NAME}" != "main" ]; then
+            echo "Run this workflow from the main branch only." >&2
+            exit 1
+          fi
+
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Validate governance rules
+        run: python3 scripts/slo_governance.py validate
+
+      - name: Check apply readiness
+        run: python3 scripts/slo_governance.py apply-readiness
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+
+      - name: Install sloctl
+        run: |
+          go install github.com/nobl9/sloctl/cmd/sloctl@latest
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
+      - name: Apply catalog
+        if: ${{ inputs.replay_from == '' }}
+        env:
+          SLOCTL_CLIENT_ID: ${{ secrets.NOBL9_CLIENT_ID }}
+          SLOCTL_CLIENT_SECRET: ${{ secrets.NOBL9_CLIENT_SECRET }}
+          SLOCTL_FILES_PROMPT_ENABLED: "false"
+        run: sloctl --no-config-file apply -y -f 'catalog/org/*.yaml'
+
+      - name: Apply catalog and replay SLO history
+        if: ${{ inputs.replay_from != '' }}
+        env:
+          SLOCTL_CLIENT_ID: ${{ secrets.NOBL9_CLIENT_ID }}
+          SLOCTL_CLIENT_SECRET: ${{ secrets.NOBL9_CLIENT_SECRET }}
+          SLOCTL_FILES_PROMPT_ENABLED: "false"
+        run: sloctl --no-config-file apply -y -f 'catalog/org/*.yaml' --replay --from="${{ inputs.replay_from }}"
