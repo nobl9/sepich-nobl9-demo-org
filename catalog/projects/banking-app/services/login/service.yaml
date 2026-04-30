@@ -1,0 +1,13 @@
+apiVersion: n9/v1alpha
+kind: Service
+metadata:
+  displayName: Login
+  labels:
+    demo:
+    - 'yes'
+  name: login
+  project: banking-app
+spec:
+  description: Service containing SLOs related to login services.
+  responsibleUsers:
+  - id: 00udz52enaMa5jKhf417

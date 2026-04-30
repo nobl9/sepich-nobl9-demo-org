@@ -1,0 +1,10 @@
+apiVersion: n9/v1alpha
+kind: Project
+metadata:
+  displayName: Point of Sale
+  labels:
+    demo:
+    - 'yes'
+  name: point-of-sale
+spec:
+  description: Project for all stores POS systems

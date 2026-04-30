@@ -1,0 +1,32 @@
+apiVersion: n9/v1alpha
+kind: SLO
+metadata:
+  displayName: Cancelation Success Rate
+  name: cancelation-success-rate
+  project: consumer-reservations
+spec:
+  budgetingMethod: Occurrences
+  description: Success Rate of cancelations
+  indicator:
+    metricSource:
+      kind: Direct
+      name: glitchy-zoomies
+      project: integrations
+  objectives:
+  - displayName: ''
+    name: objective-1
+    op: gte
+    rawMetric:
+      query:
+        gcm:
+          projectId: glitchy-zoomies
+          promql: (sum(increase(demo_requests_total{service="payments",path="/work",status=~"2.."}[1m])))
+            / clamp_min(sum(increase(demo_requests_total{service="payments",path="/work"}[1m])),
+            1)
+    target: 0.99
+    value: 0.995
+  service: cancel-reservation
+  timeWindows:
+  - count: 28
+    isRolling: true
+    unit: Day

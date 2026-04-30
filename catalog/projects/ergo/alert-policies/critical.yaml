@@ -1,0 +1,30 @@
+apiVersion: n9/v1alpha
+kind: AlertPolicy
+metadata:
+  displayName: Critical!
+  labels:
+    team:
+    - sasha
+  name: critical
+  project: ergo
+spec:
+  alertMethods:
+  - apiVersion: n9/v1alpha
+    kind: AlertMethod
+    metadata:
+      displayName: Email Sasha
+      name: email-sasha
+      project: ergo
+    spec:
+      description: ''
+      email:
+        to:
+        - sasha+noble@ergonautic.ly
+  conditions:
+  - lastsFor: 0m
+    measurement: burnedBudget
+    op: gte
+    value: 0.8
+  coolDown: 5m
+  description: The error budget is nearly exhausted (20%).
+  severity: High

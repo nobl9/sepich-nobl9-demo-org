@@ -1,0 +1,53 @@
+apiVersion: n9/v1alpha
+kind: SLO
+metadata:
+  displayName: AI Interpretation - Latency (Staging)
+  labels:
+    environment:
+    - staging
+  name: ai-interpretation-latency-staging
+  project: nobl9-slack-app
+spec:
+  budgetingMethod: Timeslices
+  description: 'User journey: User types a natural language query that falls back
+    to AI interpretation
+
+    What we measure: P95 latency of successful AI interpretation requests vs 10s threshold
+
+    Target: 95% of evaluation periods have p95 latency under 10s
+
+
+    Why this matters: Users see ''Thinking...'' while AI processes; slow responses
+    degrade experience
+
+    Why 10s: Leaves 12s buffer before the 22s Lambda timeout that triggers a hard
+    failure
+
+
+    SLI: histogram_quantile p95 over 1h window, compared against 10000ms threshold
+
+    No-traffic periods return 0ms (under threshold = good, no budget burn)
+
+    '
+  indicator:
+    metricSource:
+      kind: Agent
+      name: groundcover-n9slackapp
+      project: nobl9-slack-app
+  objectives:
+  - displayName: p95 under 10s
+    name: objective-1
+    op: lte
+    rawMetric:
+      query:
+        prometheus:
+          promql: histogram_quantile(0.95, sum by (le) (increase(n9slackapp_ai_duration_milliseconds_bucket{environment="staging",ai_status="success"}[1h])))
+            OR vector(0)
+    target: 0.95
+    timeSliceTarget: 0.95
+    value: 10000
+  service: slack-bot
+  timeWindows:
+  - count: 7
+    isRolling: true
+    unit: Day

@@ -1,0 +1,31 @@
+apiVersion: n9/v1alpha
+kind: SLO
+metadata:
+  displayName: View Statements Latency
+  name: d0722783-02cd-412f-81f5-c5a8d592e121
+  project: retail-banking-backend
+spec:
+  budgetingMethod: Occurrences
+  description: Latency on a user pulling up their statements
+  indicator:
+    metricSource:
+      kind: Direct
+      name: appdynamics
+      project: integrations
+  objectives:
+  - displayName: Latency
+    name: statements-latency
+    op: lt
+    primary: false
+    rawMetric:
+      query:
+        appDynamics:
+          applicationName: samplenodeapp
+          metricPath: Overall Application Performance|Average Response Time (ms)
+    target: 0.99
+    value: 4475
+  service: statements
+  timeWindows:
+  - count: 28
+    isRolling: true
+    unit: Day

@@ -1,0 +1,16 @@
+apiVersion: n9/v1alpha
+kind: Project
+metadata:
+  displayName: Storefront Platform
+  labels:
+    app-id:
+    - storefront-platform-app
+    critical-app:
+    - 'true'
+    owner:
+    - demo-platform
+    service-tier:
+    - tier1
+  name: storefront-platform-demo
+spec:
+  description: Nobl9 project for the storefront platform reliability demo.

@@ -1,0 +1,71 @@
+apiVersion: n9/v1alpha
+kind: SLO
+metadata:
+  displayName: Make Reservation Experience - Error Budget State Calc
+  labels:
+    demo:
+    - 'yes'
+  name: 52a8ceeb-08f8-4f3b-b668-741fd63700ed
+  project: consumer-reservations
+spec:
+  alertPolicies:
+  - 20-remaining
+  attachments:
+  - displayName: Dynatrace Dashboard
+    url: https://rxh70845.apps.dynatrace.com/ui/apps/dynatrace.dashboards/dashboard/a531ac54-786b-4718-a7bd-3e6e3d77b977#vfilter_monitor_tag=All&vfilter_frontend=All&vfilter_service=All&vfilter_location=All&from=now%28%29-24h&to=now%28%29
+  budgetingMethod: Occurrences
+  description: Measures experience of user making a reservation.
+  objectives:
+  - composite:
+      aggregation: ErrorBudgetState
+      components:
+        objectives:
+        - objective: avaialbility
+          project: consumer-reservations
+          slo: search-availability
+          weight: 4
+          whenDelayed: Ignore
+        - objective: avaialbility
+          project: consumer-reservations
+          slo: submit-reservation-availability
+          weight: 4
+          whenDelayed: Ignore
+        - objective: avaialbility
+          project: consumer-reservations
+          slo: view-reservation-availability
+          weight: 2
+          whenDelayed: Ignore
+        - objective: objective-1
+          project: consumer-reservations
+          slo: cancelation-success-rate
+          weight: 2
+          whenDelayed: Ignore
+        - objective: objective-1
+          project: consumer-reservations
+          slo: latency
+          weight: 1
+          whenDelayed: Ignore
+        - objective: objective-2
+          project: consumer-reservations
+          slo: search-latency
+          weight: 2
+          whenDelayed: Ignore
+        - objective: objective-2
+          project: consumer-reservations
+          slo: submit-reservation-latency
+          weight: 4
+          whenDelayed: Ignore
+        - objective: objective-2
+          project: consumer-reservations
+          slo: view-reservation-latency
+          weight: 2
+          whenDelayed: Ignore
+      maxDelay: 45m
+    displayName: Make Reservation
+    name: make-reservation
+    target: 0.98
+  service: user-experience
+  timeWindows:
+  - count: 28
+    isRolling: true
+    unit: Day

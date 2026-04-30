@@ -1,0 +1,21 @@
+apiVersion: n9/v1alpha
+kind: Service
+metadata:
+  displayName: Storefront
+  labels:
+    app-id:
+    - storefront-platform-app
+    critical-app:
+    - 'true'
+    owner:
+    - dan-sepich
+    service-tier:
+    - tier1
+  name: storefront
+  project: storefront-platform-demo
+spec:
+  description: Front-door storefront experience for the demo application.
+  reviewCycle:
+    rrule: FREQ=MONTHLY;BYMONTHDAY=24
+    startTime: 2026-05-24 12:00:00
+    timeZone: America/Chicago

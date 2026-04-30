@@ -1,0 +1,11 @@
+apiVersion: n9/v1alpha
+kind: Service
+metadata:
+  displayName: Payments
+  labels:
+    demo:
+    - 'yes'
+  name: pay-bill
+  project: banking-app
+spec:
+  description: Service containing SLOs related to pay bill services.

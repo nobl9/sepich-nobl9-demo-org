@@ -1,0 +1,16 @@
+apiVersion: n9/v1alpha
+kind: AlertPolicy
+metadata:
+  displayName: Slow Error Budget Drop
+  name: slow-error-budget-drop
+  project: mobile-app
+spec:
+  alertMethods: []
+  conditions:
+  - alertingWindow: 1h
+    measurement: budgetDrop
+    op: gte
+    value: 0.05
+  coolDown: 5m
+  description: The budget dropped by 5% over the last 1 hour and is not recovering.
+  severity: Low

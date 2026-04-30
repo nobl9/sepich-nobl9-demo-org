@@ -1,0 +1,16 @@
+apiVersion: n9/v1alpha
+kind: AlertPolicy
+metadata:
+  displayName: budget drop 5%
+  name: budget-drop-5
+  project: consumer-reservations
+spec:
+  alertMethods: []
+  conditions:
+  - alertingWindow: 15m
+    measurement: budgetDrop
+    op: gte
+    value: 0.05
+  coolDown: 5m
+  description: The budget dropped by 10% over the last 15 minutes and is not recovering.
+  severity: High

@@ -1,0 +1,42 @@
+apiVersion: n9/v1alpha
+kind: SLO
+metadata:
+  displayName: Home Page Availability
+  labels:
+    cloud:
+    - aws
+    source:
+    - cloudwatch
+    team:
+    - blue
+  name: availability
+  project: mobile-app
+spec:
+  budgetingMethod: Occurrences
+  description: ''
+  indicator:
+    metricSource:
+      kind: Direct
+      name: glitchy-zoomies
+      project: integrations
+  objectives:
+  - countMetrics:
+      good:
+        gcm:
+          projectId: glitchy-zoomies
+          promql: sum(increase(demo_requests_total{service="landing_page",path="/api/visit",status=~"2.."}[1m]))
+      incremental: false
+      total:
+        gcm:
+          projectId: glitchy-zoomies
+          promql: sum(increase(demo_requests_total{service="landing_page",path="/api/visit"}[1m]))
+    displayName: Availability
+    name: objective-1
+    primary: false
+    target: 0.995
+    value: 1
+  service: home-page
+  timeWindows:
+  - count: 28
+    isRolling: true
+    unit: Day

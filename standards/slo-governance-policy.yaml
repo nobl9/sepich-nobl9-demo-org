@@ -1,0 +1,72 @@
+version: v1
+policy_name: enterprise-deploy-time-slo-governance
+description: >
+  Enterprise reliability governance model for production deployments. Teams can
+  discover and draft SLOs in the UI, from templates, or with AI. Promotion to
+  production is governed by inventory, standards, and approved exceptions.
+
+governance_model:
+  source_of_truth: git
+  creation_surfaces:
+    - nobl9-ui
+    - templates
+    - ai-assisted
+  enforcement_point: enterprise-deployment-pipeline
+  advisory_points:
+    - team-local-review
+    - design-time-slo-creation
+
+release_gate:
+  enforce_at_pr: false
+  enforce_at_deploy: true
+  fail_on_missing_inventory: true
+  fail_on_missing_governed_service: true
+  fail_on_missing_required_labels: true
+  fail_on_missing_required_slos: true
+  fail_on_hidden_alert_method_secrets: true
+
+required_metadata_labels:
+  - owner
+  - service-tier
+
+service_tiers:
+  tier1:
+    display_name: Critical user-facing path
+    required_slos:
+      - availability
+      - latency
+    deploy_enforcement: required
+  tier2:
+    display_name: Critical dependency
+    required_slos:
+      - availability
+      - latency
+    deploy_enforcement: required
+  tier3:
+    display_name: Non-critical or onboarding
+    required_slos:
+      - availability
+    deploy_enforcement: warning
+
+approved_patterns:
+  availability:
+    accepted_indicator_shapes:
+      - countMetrics
+      - rawMetric
+      - composite
+  latency:
+    accepted_indicator_shapes:
+      - rawMetric
+      - composite
+    approved_percentiles:
+      - p90
+
+exceptions:
+  required_fields:
+    - id
+    - project
+    - service
+    - reason
+    - owner
+    - expires_on
+

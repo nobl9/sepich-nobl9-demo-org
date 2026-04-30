@@ -1,0 +1,11 @@
+apiVersion: n9/v1alpha
+kind: Service
+metadata:
+  displayName: Store Composite
+  labels:
+    demo:
+    - 'yes'
+  name: store-composite
+  project: point-of-sale
+spec:
+  description: ''

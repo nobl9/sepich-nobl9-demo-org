@@ -1,0 +1,45 @@
+apiVersion: n9/v1alpha
+kind: SLO
+metadata:
+  displayName: Landing Page Availability
+  labels:
+    app-id:
+    - storefront-platform-app
+    critical-app:
+    - 'true'
+    owner:
+    - demo-platform
+    service-tier:
+    - tier1
+  name: landing-page-availability
+  project: storefront-platform-demo
+spec:
+  alertPolicies:
+  - landing-page-availability-fast-burn
+  budgetingMethod: Occurrences
+  description: Availability SLO for the primary storefront visitor path.
+  indicator:
+    metricSource:
+      kind: Direct
+      name: glitchy-zoomies
+      project: integrations
+  objectives:
+  - countMetrics:
+      good:
+        gcm:
+          projectId: glitchy-zoomies
+          promql: sum(increase(demo_requests_total{service="landing_page",path="/api/visit",status=~"2.."}[1m]))
+      incremental: false
+      total:
+        gcm:
+          projectId: glitchy-zoomies
+          promql: sum(increase(demo_requests_total{service="landing_page",path="/api/visit"}[1m]))
+    displayName: Successful visits
+    name: availability
+    target: 0.995
+    value: 1
+  service: storefront
+  timeWindows:
+  - count: 7
+    isRolling: true
+    unit: Day

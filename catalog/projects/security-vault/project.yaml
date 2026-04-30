@@ -1,0 +1,64 @@
+apiVersion: n9/v1alpha
+kind: Project
+metadata:
+  displayName: Security Vault
+  labels:
+    sn_active:
+    - 'true'
+    sn_application_type:
+    - Homegrown
+    sn_architecture_type:
+    - Other
+    sn_attestation_status:
+    - Not Yet Reviewed
+    sn_attested:
+    - 'false'
+    sn_can_print:
+    - 'false'
+    sn_certified:
+    - 'false'
+    sn_cost_cc:
+    - USD
+    sn_fault_count:
+    - '0'
+    sn_install_status:
+    - Pilot
+    sn_install_type:
+    - On Premise
+    sn_it_application_owner:
+    - nobl9user
+    sn_monitor:
+    - 'false'
+    sn_number:
+    - APM0001002
+    sn_operational_status:
+    - Operational
+    sn_skip_sync:
+    - 'false'
+    sn_sys_class_name:
+    - Business Application
+    sn_sys_class_path:
+    - /!!/!P
+    sn_sys_created_by:
+    - admin
+    sn_sys_created_on:
+    - '2025-08-11 03:16:43'
+    sn_sys_domain:
+    - global
+    sn_sys_domain_path:
+    - /
+    sn_sys_id:
+    - f440bde9331fe6903b76b2cdcd5c7b4b
+    sn_sys_mod_count:
+    - '0'
+    sn_sys_updated_by:
+    - admin
+    sn_sys_updated_on:
+    - '2025-08-11 03:16:43'
+    sn_unverified:
+    - 'false'
+    source:
+    - servicenow
+  name: security-vault
+spec:
+  description: Keeps all the secrets

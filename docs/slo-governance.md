@@ -1,18 +1,25 @@
-# Nobl9 Org Governance Operating Model
+# Nobl9 Enterprise SLO Governance Model
 
 ## Why this repo exists
 
-The demo environment already has a functioning Nobl9 org full of projects, services, alert policies, and SLOs. This repo makes that configuration reviewable, reproducible, and easier to govern:
+The demo environment already has a functioning Nobl9 org full of projects, services, alert policies, and SLOs. The goal of this repo is not to force every team to author everything in YAML from day one. The goal is to show a sustainable enterprise model where:
 
-- the repo becomes the source of truth for org-wide Nobl9 configuration
-- pull requests become the approval path for reliability changes
-- GitHub Actions becomes the controlled path for applying approved changes
+- teams can create SLOs in the UI, from templates, or with AI help
+- governed production services are declared in inventory
+- enterprise standards define what is required to ship safely
+- the governed catalog becomes the Git source of truth
+- deployment pipelines enforce policy for governed services
+
+This is intentionally inspired by the Glitchy Zoomies deployment model, where the important idea is that software and the reliability contract move forward together at release time.
 
 ## Guardrails enforced in-repo
 
-The validator checks a few opinionated rules to keep the catalog healthy:
+The validator and policy files focus on deployment-time governance:
 
-- every object must have the minimum identifying fields needed for replay and apply
+- every governed production service must exist in inventory
+- governed services must exist in the Nobl9 catalog
+- governed services must carry required metadata labels
+- governed services must have the required SLO categories for their tier
 - every service, alert policy, and SLO must reference a project that exists in the repo
 - every SLO must reference a service that exists in the repo
 - every alert policy referenced by an SLO must exist in the repo
@@ -23,9 +30,10 @@ The validator checks a few opinionated rules to keep the catalog healthy:
 
 ### `Nobl9 Org Governance`
 
-Runs on pull requests and on pushes to `main`.
+Runs on pushes to `main` and by manual invocation.
 
 - validates repo structure and object relationships
+- validates governed inventory coverage against enterprise standards
 - publishes a markdown inventory summary in the workflow run
 - if Nobl9 credentials are configured, runs an authenticated `sloctl apply --dry-run`
 
@@ -36,14 +44,19 @@ Runs manually from GitHub Actions.
 - validates the repo again before promotion
 - checks apply-readiness so placeholder secret values are never pushed
 - installs `sloctl`
-- applies `catalog/org/*.yaml` from the checked out `main` branch
+- applies `catalog/projects/**/*.yaml` from the checked out `main` branch
 - optionally replays SLO history if an RFC3339 `replay_from` input is provided
 
 ## Suggested team process
 
-1. Start by refreshing the bundle files from live Nobl9 with `make export`.
-2. Treat changes to targets, windows, objectives, composite weighting, alerting, and ownership as review-worthy changes.
-3. Use the pull request template to record the operational reason for the update.
+1. Let teams create or refine SLOs in the UI, from templates, or with AI suggestions.
+2. Use `make sync` to normalize the live org into the governed catalog structure.
+3. Add or update governed services in inventory only when the enterprise wants deployment enforcement.
 4. Resolve any `[hidden]` placeholder issues before running org-wide apply.
-5. Prefer changing YAML here first, then promoting with the apply workflow, instead of editing objects ad hoc in the Nobl9 UI.
+5. Use the enterprise deployment path as the hard enforcement point for governed production services.
 
+## Customer-Friendly Framing
+
+The simplest way to explain the model is:
+
+**Teams are free to create SLOs in the easiest way possible. Enterprise governance decides what is required before production deployment.**

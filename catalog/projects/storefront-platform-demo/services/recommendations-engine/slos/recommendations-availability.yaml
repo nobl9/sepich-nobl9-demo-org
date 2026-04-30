@@ -1,0 +1,45 @@
+apiVersion: n9/v1alpha
+kind: SLO
+metadata:
+  displayName: Recommendations Availability
+  labels:
+    app-id:
+    - storefront-platform-app
+    critical-app:
+    - 'true'
+    owner:
+    - demo-platform
+    service-tier:
+    - tier2
+  name: recommendations-availability
+  project: storefront-platform-demo
+spec:
+  alertPolicies:
+  - recommendations-availability-fast-burn
+  budgetingMethod: Occurrences
+  description: Availability SLO for the recommendations dependency.
+  indicator:
+    metricSource:
+      kind: Direct
+      name: glitchy-zoomies
+      project: integrations
+  objectives:
+  - countMetrics:
+      good:
+        gcm:
+          projectId: glitchy-zoomies
+          promql: sum(increase(demo_requests_total{service="recommendations",path="/work",status=~"2.."}[1m]))
+      incremental: false
+      total:
+        gcm:
+          projectId: glitchy-zoomies
+          promql: sum(increase(demo_requests_total{service="recommendations",path="/work"}[1m]))
+    displayName: Successful recommendation checks
+    name: availability
+    target: 0.995
+    value: 1
+  service: recommendations-engine
+  timeWindows:
+  - count: 7
+    isRolling: true
+    unit: Day

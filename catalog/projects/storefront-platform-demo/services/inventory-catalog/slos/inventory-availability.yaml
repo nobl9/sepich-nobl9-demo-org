@@ -1,0 +1,45 @@
+apiVersion: n9/v1alpha
+kind: SLO
+metadata:
+  displayName: Inventory Availability
+  labels:
+    app-id:
+    - storefront-platform-app
+    critical-app:
+    - 'true'
+    owner:
+    - demo-platform
+    service-tier:
+    - tier2
+  name: inventory-availability
+  project: storefront-platform-demo
+spec:
+  alertPolicies:
+  - inventory-availability-fast-burn
+  budgetingMethod: Occurrences
+  description: Availability SLO for the inventory dependency.
+  indicator:
+    metricSource:
+      kind: Direct
+      name: glitchy-zoomies
+      project: integrations
+  objectives:
+  - countMetrics:
+      good:
+        gcm:
+          projectId: glitchy-zoomies
+          promql: sum(increase(demo_requests_total{service="inventory",path="/work",status=~"2.."}[1m]))
+      incremental: false
+      total:
+        gcm:
+          projectId: glitchy-zoomies
+          promql: sum(increase(demo_requests_total{service="inventory",path="/work"}[1m]))
+    displayName: Successful inventory checks
+    name: availability
+    target: 0.995
+    value: 1
+  service: inventory-catalog
+  timeWindows:
+  - count: 7
+    isRolling: true
+    unit: Day

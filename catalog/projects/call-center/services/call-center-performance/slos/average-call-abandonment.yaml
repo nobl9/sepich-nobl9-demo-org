@@ -1,0 +1,37 @@
+apiVersion: n9/v1alpha
+kind: SLO
+metadata:
+  displayName: Average Call Retainment
+  name: average-call-abandonment
+  project: call-center
+spec:
+  budgetingMethod: Occurrences
+  description: ''
+  indicator:
+    metricSource:
+      kind: Direct
+      name: splunk
+      project: integrations
+  objectives:
+  - countMetrics:
+      good:
+        splunk:
+          query: search index=polakpotrafi-events source=udp:5072 sourcetype=syslog
+            status<400 | bucket _time span=1m | stats count as n9value by _time |
+            rename _time as n9time | fields n9time n9value
+      incremental: false
+      total:
+        splunk:
+          query: search index=polakpotrafi-events source=udp:5072 sourcetype=syslog
+            | bucket _time span=1m | stats count as n9value by _time | rename _time
+            as n9time | fields n9time n9value
+    displayName: Average Call Retainment
+    name: average-call-abandonment
+    primary: false
+    target: 0.75
+    value: 0
+  service: call-center-performance
+  timeWindows:
+  - count: 28
+    isRolling: true
+    unit: Day

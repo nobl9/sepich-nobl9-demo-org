@@ -1,0 +1,13 @@
+apiVersion: n9/v1alpha
+kind: Service
+metadata:
+  displayName: Store 4
+  labels:
+    demo:
+    - 'yes'
+  name: store-4
+  project: point-of-sale
+spec:
+  description: Service containing SLOs related to POS.
+  responsibleUsers:
+  - id: 00udz52enaMa5jKhf417

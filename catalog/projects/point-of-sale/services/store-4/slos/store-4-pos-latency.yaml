@@ -1,0 +1,34 @@
+apiVersion: n9/v1alpha
+kind: SLO
+metadata:
+  displayName: Latency
+  labels:
+    location:
+    - New York City
+  name: store-4-pos-latency
+  project: point-of-sale
+spec:
+  budgetingMethod: Occurrences
+  description: Latency of point of Sale
+  indicator:
+    metricSource:
+      kind: Direct
+      name: glitchy-zoomies
+      project: integrations
+  objectives:
+  - displayName: Latency
+    name: objective-1
+    op: lte
+    primary: false
+    rawMetric:
+      query:
+        gcm:
+          projectId: glitchy-zoomies
+          promql: 1000 * histogram_quantile(0.90, sum by (le) (rate(demo_request_duration_seconds_bucket{service="landing_page",path="/api/visit"}[1m])))
+    target: 0.95
+    value: 2000
+  service: store-4
+  timeWindows:
+  - count: 28
+    isRolling: true
+    unit: Day

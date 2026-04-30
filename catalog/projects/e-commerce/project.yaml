@@ -1,0 +1,10 @@
+apiVersion: n9/v1alpha
+kind: Project
+metadata:
+  displayName: E-commerce
+  labels:
+    composite-demo:
+    - composite-demo
+  name: e-commerce
+spec:
+  description: Project for our on-line store and all related services and SLOs.

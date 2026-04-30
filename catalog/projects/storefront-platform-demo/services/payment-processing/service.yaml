@@ -1,0 +1,22 @@
+apiVersion: n9/v1alpha
+kind: Service
+metadata:
+  displayName: Payment Processing
+  labels:
+    app-id:
+    - storefront-platform-app
+    critical-app:
+    - 'true'
+    owner:
+    - dan-sepich
+    service-tier:
+    - tier2
+  name: payment-processing
+  project: storefront-platform-demo
+spec:
+  description: Critical dependency used to demonstrate payment failures and budget
+    burn.
+  reviewCycle:
+    rrule: FREQ=MONTHLY;BYMONTHDAY=24
+    startTime: 2026-05-24 12:00:00
+    timeZone: America/Chicago

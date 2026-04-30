@@ -1,0 +1,41 @@
+apiVersion: n9/v1alpha
+kind: SLO
+metadata:
+  displayName: Inventory p90 Latency
+  labels:
+    app-id:
+    - storefront-platform-app
+    critical-app:
+    - 'true'
+    owner:
+    - demo-platform
+    service-tier:
+    - tier2
+  name: inventory-latency
+  project: storefront-platform-demo
+spec:
+  alertPolicies:
+  - inventory-latency-fast-burn
+  budgetingMethod: Occurrences
+  description: p90 latency SLO for the inventory dependency.
+  indicator:
+    metricSource:
+      kind: Direct
+      name: glitchy-zoomies
+      project: integrations
+  objectives:
+  - displayName: p90 under 500 milliseconds
+    name: latency
+    op: lte
+    rawMetric:
+      query:
+        gcm:
+          projectId: glitchy-zoomies
+          promql: 1000 * histogram_quantile(0.90, sum by (le) (rate(demo_request_duration_seconds_bucket{service="inventory",path="/work"}[1m])))
+    target: 0.95
+    value: 500
+  service: inventory-catalog
+  timeWindows:
+  - count: 7
+    isRolling: true
+    unit: Day

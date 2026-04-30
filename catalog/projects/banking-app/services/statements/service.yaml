@@ -1,0 +1,13 @@
+apiVersion: n9/v1alpha
+kind: Service
+metadata:
+  displayName: Statements
+  labels:
+    demo:
+    - 'yes'
+  name: statements
+  project: banking-app
+spec:
+  description: Service containing SLOs related to viewing banking statement services.
+  responsibleUsers:
+  - id: 00udz52enaMa5jKhf417

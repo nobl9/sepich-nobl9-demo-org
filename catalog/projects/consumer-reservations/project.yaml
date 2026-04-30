@@ -1,0 +1,10 @@
+apiVersion: n9/v1alpha
+kind: Project
+metadata:
+  displayName: Consumer Reservations
+  labels:
+    demo:
+    - 'yes'
+  name: consumer-reservations
+spec:
+  description: Project for SLOs that represent examples of reserverations being made.

@@ -1,0 +1,25 @@
+apiVersion: n9/v1alpha
+kind: AlertPolicy
+metadata:
+  displayName: Inventory Availability Fast Burn
+  labels:
+    app-id:
+    - storefront-platform-app
+    critical-app:
+    - 'true'
+    owner:
+    - demo-platform
+    service-tier:
+    - tier2
+  name: inventory-availability-fast-burn
+  project: storefront-platform-demo
+spec:
+  alertMethods: []
+  conditions:
+  - alertingWindow: 5m
+    measurement: averageBurnRate
+    op: gte
+    value: 20
+  coolDown: 5m
+  description: Fast burn alert policy for Inventory availability.
+  severity: High
