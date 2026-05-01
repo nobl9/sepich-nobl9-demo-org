@@ -1,0 +1,25 @@
+apiVersion: n9/v1alpha
+kind: Service
+metadata:
+  displayName: Cancel Reservation
+  labels:
+    demo:
+    - 'yes'
+    app-id:
+    - app-80fde303
+    ad-group-name:
+    - AD-N9-ConsumerReservations-Owners
+    cost-center:
+    - CC-1000
+    business-unit:
+    - Demo Platforms
+    env-type:
+    - prod
+    business-criticality-tier:
+    - tier1
+  name: cancel-reservation
+  project: consumer-reservations
+spec:
+  description: Service containing SLOs related to canceling reservations.
+  responsibleUsers:
+  - id: 00uef6bjarV2bLxnz416

@@ -7,6 +7,8 @@ metadata:
     - AD-N9-StorefrontPlatform-Owners
     app-id:
     - app-c36bf0f7
+    business-criticality-tier:
+    - tier1
     business-unit:
     - Demo Platforms
     cost-center:
@@ -19,8 +21,6 @@ metadata:
     - dan-sepich
     service-tier:
     - tier2
-    business-criticality-tier:
-    - tier1
   name: recommendations-engine
   project: storefront-platform-demo
 spec:

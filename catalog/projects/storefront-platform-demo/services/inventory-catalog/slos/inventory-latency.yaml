@@ -7,6 +7,8 @@ metadata:
     - AD-N9-StorefrontPlatform-Owners
     app-id:
     - app-c36bf0f7
+    business-criticality-tier:
+    - tier1
     business-unit:
     - Demo Platforms
     cost-center:
@@ -19,8 +21,6 @@ metadata:
     - demo-platform
     service-tier:
     - tier2
-    business-criticality-tier:
-    - tier1
   name: inventory-latency
   project: storefront-platform-demo
 spec:

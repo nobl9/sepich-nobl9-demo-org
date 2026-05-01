@@ -1,0 +1,57 @@
+apiVersion: n9/v1alpha
+kind: SLO
+metadata:
+  displayName: Composite
+  name: 3e29d6c6-e8e2-45c4-a313-dfe1b56f4c67
+  project: call-center
+  labels:
+    app-id:
+    - app-ddb899d8
+    ad-group-name:
+    - AD-N9-CallCenter-Owners
+    cost-center:
+    - CC-1000
+    business-unit:
+    - Demo Platforms
+    env-type:
+    - prod
+    business-criticality-tier:
+    - tier1
+spec:
+  budgetingMethod: Occurrences
+  description: ''
+  objectives:
+  - composite:
+      aggregation: Reliability
+      components:
+        objectives:
+        - objective: check-balance-latency
+          project: banking-app
+          slo: check-balance-latency
+          weight: 200
+          whenDelayed: Ignore
+        - objective: statements-latency
+          project: banking-app
+          slo: statements-latency
+          weight: 1
+          whenDelayed: Ignore
+        - objective: ok
+          project: call-center
+          slo: errors
+          weight: 1
+          whenDelayed: Ignore
+        - objective: purchase-user-journey-experience
+          project: e-commerce
+          slo: purchase-user-journey-experience
+          weight: 1
+          whenDelayed: Ignore
+      maxDelay: 1h
+    displayName: Composite objective
+    name: composite-objective
+    primary: false
+    target: 0.9
+  service: call-center-performance
+  timeWindows:
+  - count: 28
+    isRolling: true
+    unit: Day

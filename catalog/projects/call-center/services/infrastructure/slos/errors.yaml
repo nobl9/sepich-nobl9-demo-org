@@ -1,0 +1,51 @@
+apiVersion: n9/v1alpha
+kind: SLO
+metadata:
+  displayName: Call Errors
+  labels:
+    datasource:
+    - appd
+    slo_type:
+    - error_rate
+    app-id:
+    - app-ddb899d8
+    ad-group-name:
+    - AD-N9-CallCenter-Owners
+    cost-center:
+    - CC-1000
+    business-unit:
+    - Demo Platforms
+    env-type:
+    - prod
+    business-criticality-tier:
+    - tier1
+  name: errors
+  project: call-center
+spec:
+  attachments:
+  - displayName: AppD Error Count
+    url: https://nobl9.saas.appdynamics.com/controller/#/location=METRIC_BROWSER&viewTree=true&axis=linear&showPoints=false&application=2192&timeRange=last_1_hour.BEFORE_NOW.-1.-1.60&metrics=APPLICATION_COMPONENT.10178.6942070
+  budgetingMethod: Occurrences
+  description: ''
+  indicator:
+    metricSource:
+      kind: Direct
+      name: appdynamics
+      project: integrations
+  objectives:
+  - displayName: Errors
+    name: ok
+    op: lt
+    primary: false
+    rawMetric:
+      query:
+        appDynamics:
+          applicationName: samplenodeapp
+          metricPath: Overall Application Performance|WebApplication|Errors per Minute
+    target: 0.99
+    value: 75
+  service: infrastructure
+  timeWindows:
+  - count: 7
+    isRolling: true
+    unit: Day

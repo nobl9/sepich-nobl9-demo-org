@@ -218,6 +218,39 @@ def build_governed_scope(governed_apps: dict) -> set[str]:
     }
 
 
+def resolve_slo_dependencies(selected_slos: list[dict], all_slos: list[dict]) -> list[dict]:
+    slo_index = {
+        (
+            document.get("metadata", {}).get("project"),
+            document.get("metadata", {}).get("name"),
+        ): document
+        for document in all_slos
+    }
+
+    resolved: dict[tuple[str | None, str | None], dict] = {
+        (
+            document.get("metadata", {}).get("project"),
+            document.get("metadata", {}).get("name"),
+        ): document
+        for document in selected_slos
+    }
+    queue = list(resolved.values())
+
+    while queue:
+        document = queue.pop()
+        for objective in document.get("spec", {}).get("objectives", []):
+            composite = objective.get("composite") or {}
+            references = composite.get("components", {}).get("objectives", [])
+            for reference in references:
+                key = (reference.get("project"), reference.get("slo"))
+                dependency = slo_index.get(key)
+                if dependency and key not in resolved:
+                    resolved[key] = dependency
+                    queue.append(dependency)
+
+    return list(resolved.values())
+
+
 def synthesize_project(app: dict, app_inventory: dict) -> dict:
     labels = {
         "governed-app": ["true"],
@@ -266,10 +299,41 @@ def main() -> int:
 
     projects, services, alert_policies, slos = [run_export(command) for command in EXPORTS]
 
+    selected_project_names = set(governed_scope)
+
     filtered_projects = [
         document
         for document in projects
-        if document.get("metadata", {}).get("name") in governed_scope
+        if document.get("metadata", {}).get("name") in selected_project_names
+    ]
+    existing_project_names = {
+        document.get("metadata", {}).get("name")
+        for document in filtered_projects
+    }
+    for app in governed_apps.get("apps", []):
+        project_name = app.get("project")
+        if project_name in selected_project_names and project_name not in existing_project_names:
+            filtered_projects.append(synthesize_project(app, app_inventory))
+
+    filtered_slos = resolve_slo_dependencies(
+        [
+            document
+            for document in slos
+            if document.get("metadata", {}).get("project") in selected_project_names
+        ],
+        slos,
+    )
+
+    selected_project_names.update(
+        document.get("metadata", {}).get("project")
+        for document in filtered_slos
+        if document.get("metadata", {}).get("project")
+    )
+
+    filtered_projects = [
+        document
+        for document in projects
+        if document.get("metadata", {}).get("name") in selected_project_names
     ]
     existing_project_names = {
         document.get("metadata", {}).get("name")
@@ -280,15 +344,21 @@ def main() -> int:
         if project_name in governed_scope and project_name not in existing_project_names:
             filtered_projects.append(synthesize_project(app, app_inventory))
 
+    selected_services = {
+        (
+            document.get("metadata", {}).get("project"),
+            document.get("spec", {}).get("service"),
+        )
+        for document in filtered_slos
+        if document.get("spec", {}).get("service")
+    }
     filtered_services = [
         document
         for document in services
-        if document.get("metadata", {}).get("project") in governed_scope
-    ]
-    filtered_slos = [
-        document
-        for document in slos
-        if document.get("metadata", {}).get("project") in governed_scope
+        if (
+            document.get("metadata", {}).get("project"),
+            document.get("metadata", {}).get("name"),
+        ) in selected_services
     ]
 
     needed_alert_policies = {

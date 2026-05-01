@@ -3,20 +3,20 @@ kind: SLO
 metadata:
   displayName: Check Balance Latency
   labels:
+    ad-group-name:
+    - AD-N9-DigitalBankingPlatform-Owners
     api:
     - 'true'
     app-id:
     - app-26f8ef6c
-    ad-group-name:
-    - AD-N9-DigitalBankingPlatform-Owners
-    cost-center:
-    - CC-1000
-    business-unit:
-    - Demo Platforms
-    env-type:
-    - prod
     business-criticality-tier:
     - tier1
+    business-unit:
+    - Demo Platforms
+    cost-center:
+    - CC-1000
+    env-type:
+    - prod
   name: check-balance-latency
   project: banking-app
 spec:

@@ -7,6 +7,8 @@ metadata:
     - AD-N9-StorefrontPlatform-Owners
     app-id:
     - app-c36bf0f7
+    business-criticality-tier:
+    - tier1
     business-unit:
     - Demo Platforms
     cost-center:
@@ -18,8 +20,6 @@ metadata:
     owner:
     - demo-platform
     service-tier:
-    - tier1
-    business-criticality-tier:
     - tier1
   name: login-latency
   project: storefront-platform-demo

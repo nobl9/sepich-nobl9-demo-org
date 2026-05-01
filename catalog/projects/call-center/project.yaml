@@ -1,0 +1,22 @@
+apiVersion: n9/v1alpha
+kind: Project
+metadata:
+  displayName: Call Center
+  labels:
+    demo:
+    - 'yes'
+    app-id:
+    - app-ddb899d8
+    ad-group-name:
+    - AD-N9-CallCenter-Owners
+    cost-center:
+    - CC-1000
+    business-unit:
+    - Demo Platforms
+    env-type:
+    - prod
+    business-criticality-tier:
+    - tier1
+  name: call-center
+spec:
+  description: Project for call center SLOs
