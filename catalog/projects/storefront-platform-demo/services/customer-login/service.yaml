@@ -25,5 +25,5 @@ spec:
   description: User-facing authentication flow for the demo application.
   reviewCycle:
     rrule: FREQ=MONTHLY;BYMONTHDAY=24
-    startTime: 2026-05-24 12:00:00
+    startTime: '2026-05-24T12:00:00'
     timeZone: America/Chicago
