@@ -8,6 +8,17 @@ This repo is designed to demo a more sustainable enterprise model for SLO govern
 - the catalog holds the governed Nobl9 source of truth
 - enterprise deployment pipelines can enforce that governed production services do not ship without the required reliability contract
 
+The best human-readable entry point for the model is the repo-local governance
+skill:
+
+- [`.codex/skills/nobl9-enterprise-release-governance/SKILL.md`](/Users/dansepich/Documents/Repos/sepich-n9-demo-org/.codex/skills/nobl9-enterprise-release-governance/SKILL.md)
+
+Think about the layers like this:
+
+- `SKILL.md`: human-readable governance standard
+- `standards/slo-governance-policy.yaml`: machine-readable policy
+- `scripts/` and `.github/workflows/`: enforcement and automation
+
 ## What lives here
 
 - `standards/`: enterprise SLO policy and approved governance rules.
@@ -85,6 +96,7 @@ This demo models that connective tissue explicitly:
 - `inventory/app-inventory.yaml` represents the broader enterprise app inventory
 - `inventory/governed-apps.yaml` is the synced subset used for deployment governance and governed catalog buildout
 - each app record is intentionally simple: `app_id`, `name`, `business_criticality_tier`, and `ad_group_name`
+- shared inventory defaults can also drive derived governance labels such as `cost-center`, `business-unit`, and `env-type`
 - apps marked `tier1` in inventory metadata are automatically included in governed scope
 - when a governed app has no live Nobl9 project yet, a naming policy generates the initial project name and a bootstrap project manifest
 
@@ -128,11 +140,20 @@ That workflow supports both:
 - manual runs with `workflow_dispatch` for demos
 - reusable `workflow_call` invocation so an enterprise deploy workflow can put the gate directly in front of application deployment
 
-There is also an example end-to-end workflow, `Example Governed App Deploy`, that demonstrates the full Zoomies-style sequence:
+There is also an example end-to-end workflow, `Example Governed App Deploy`, that demonstrates the full release-governance sequence:
 
 1. call the reusable deployment gate
 2. deploy the application
 3. reconcile Nobl9 from the governed catalog
+
+For demos, the easiest GitHub path to show is:
+
+1. run `Example Governed App Deploy`
+2. open the final `Demo Run Summary` job
+3. point at the numbered jobs and their status as the release-governance flow
+
+The reusable workflows also now use descriptive run names so previous runs are
+easy to scan in the Actions history.
 
 Those GitHub workflows are meant to show the release-governance pattern clearly. They are not meant to imply that every upstream sync in a real enterprise must run in GitHub Actions.
 

@@ -1,28 +1,182 @@
 version: v1
 portfolio: sepich-nobl9-demo-org
 description: >
-  Demo enterprise application inventory. This represents the kind of broader
-  CMDB or application portfolio source system that typically exists in
-  enterprise environments. Governed Nobl9 applications are derived from this
-  inventory based on criticality metadata.
+  Demo enterprise application inventory aligned to the current live Nobl9 org.
+  Each entry represents a real Nobl9 project and defaults to tier2 so governed
+  scope can be enabled intentionally by promoting selected apps to tier1.
+
+defaults:
+  cost_center: CC-1000
+  business_unit: Demo Platforms
+  env_type: prod
 
 apps:
-  - app_id: app-7f3b9d21
+  - app_id: app-ddb899d8
+    name: Call Center
+    business_criticality_tier: tier2
+    ad_group_name: AD-N9-CallCenter-Owners
+
+  - app_id: app-e8c39c4d
+    name: Operations
+    business_criticality_tier: tier2
+    ad_group_name: AD-N9-Operations-Owners
+
+  - app_id: app-fbc3b3c2
+    name: GS-Sandbox Project
+    business_criticality_tier: tier2
+    ad_group_name: AD-N9-GsSandboxProject-Owners
+
+  - app_id: app-c3de307c
+    name: Dan Test
+    business_criticality_tier: tier2
+    ad_group_name: AD-N9-DanTest-Owners
+
+  - app_id: app-a2e1a877
+    name: integrations
+    business_criticality_tier: tier2
+    ad_group_name: AD-N9-Integrations-Owners
+
+  - app_id: app-c36bf0f7
     name: Storefront Platform
     business_criticality_tier: tier1
-    ad_group_name: AD-N9-Storefront-Owners
+    ad_group_name: AD-N9-StorefrontPlatform-Owners
 
-  - app_id: app-18ac42ef
-    name: OpenTelemetry Astronomy Shop
+  - app_id: app-91973952
+    name: E-commerce
     business_criticality_tier: tier2
-    ad_group_name: AD-N9-AstronomyShop-Owners
+    ad_group_name: AD-N9-ECommerce-Owners
 
-  - app_id: app-c2e90844
+  - app_id: app-80232262
+    name: External Services
+    business_criticality_tier: tier2
+    ad_group_name: AD-N9-ExternalServices-Owners
+
+  - app_id: app-26f8ef6c
     name: Digital Banking Platform
     business_criticality_tier: tier2
-    ad_group_name: AD-N9-Banking-Owners
+    ad_group_name: AD-N9-DigitalBankingPlatform-Owners
 
-  - app_id: app-5aa11490
+  - app_id: app-6b1f3c47
+    name: Consumer Queue
+    business_criticality_tier: tier2
+    ad_group_name: AD-N9-ConsumerQueue-Owners
+
+  - app_id: app-badf2ceb
+    name: supply-chain
+    business_criticality_tier: tier2
+    ad_group_name: AD-N9-SupplyChain-Owners
+
+  - app_id: app-80fde303
+    name: Consumer Reservations
+    business_criticality_tier: tier2
+    ad_group_name: AD-N9-ConsumerReservations-Owners
+
+  - app_id: app-35f8b746
+    name: Infrastructure
+    business_criticality_tier: tier2
+    ad_group_name: AD-N9-Infrastructure-Owners
+
+  - app_id: app-2135a47c
+    name: vSphere Performance
+    business_criticality_tier: tier2
+    ad_group_name: AD-N9-VspherePerformance-Owners
+
+  - app_id: app-e76b2a81
+    name: Stock Quotes
+    business_criticality_tier: tier2
+    ad_group_name: AD-N9-StockQuotes-Owners
+
+  - app_id: app-e3ff8d9d
+    name: Insurance Quote App
+    business_criticality_tier: tier2
+    ad_group_name: AD-N9-InsuranceQuoteApp-Owners
+
+  - app_id: app-0ed60ce7
+    name: IAM
+    business_criticality_tier: tier2
+    ad_group_name: AD-N9-Iam-Owners
+
+  - app_id: app-ed323327
+    name: Retail Website
+    business_criticality_tier: tier2
+    ad_group_name: AD-N9-RetailWebsite-Owners
+
+  - app_id: app-a5b1ccc8
+    name: Streaming App
+    business_criticality_tier: tier2
+    ad_group_name: AD-N9-StreamingApp-Owners
+
+  - app_id: app-7505d64a
+    name: default
+    business_criticality_tier: tier2
+    ad_group_name: AD-N9-Default-Owners
+
+  - app_id: app-6f4baa56
+    name: test-target-2
+    business_criticality_tier: tier2
+    ad_group_name: AD-N9-TestTarget2-Owners
+
+  - app_id: app-c1d5a281
+    name: Mobile App
+    business_criticality_tier: tier2
+    ad_group_name: AD-N9-MobileApp-Owners
+
+  - app_id: app-79e921f1
+    name: Dynatrace Auto SLO
+    business_criticality_tier: tier2
+    ad_group_name: AD-N9-DynatraceAutoSlo-Owners
+
+  - app_id: app-fc180c07
+    name: Pet Adoptions Website
+    business_criticality_tier: tier2
+    ad_group_name: AD-N9-PetAdoptionsWebsite-Owners
+
+  - app_id: app-c062a5a4
+    name: test-target
+    business_criticality_tier: tier2
+    ad_group_name: AD-N9-TestTarget-Owners
+
+  - app_id: app-23f3fd77
+    name: Portal
+    business_criticality_tier: tier2
+    ad_group_name: AD-N9-Portal-Owners
+
+  - app_id: app-3111aa67
+    name: Point of Sale
+    business_criticality_tier: tier2
+    ad_group_name: AD-N9-PointOfSale-Owners
+
+  - app_id: app-a94a8fe5
+    name: Test
+    business_criticality_tier: tier2
+    ad_group_name: AD-N9-Test-Owners
+
+  - app_id: app-8c9d4039
+    name: Security Vault
+    business_criticality_tier: tier2
+    ad_group_name: AD-N9-SecurityVault-Owners
+
+  - app_id: app-99d3a7eb
     name: Bookings
-    business_criticality_tier: tier3
+    business_criticality_tier: tier2
     ad_group_name: AD-N9-Bookings-Owners
+
+  - app_id: app-6a69e454
+    name: Retail Banking Backend
+    business_criticality_tier: tier2
+    ad_group_name: AD-N9-RetailBankingBackend-Owners
+
+  - app_id: app-89e495e7
+    name: Travel Website
+    business_criticality_tier: tier2
+    ad_group_name: AD-N9-TravelWebsite-Owners
+
+  - app_id: app-c6d1c3d3
+    name: OpenTelemetry Astronomy Shop
+    business_criticality_tier: tier2
+    ad_group_name: AD-N9-OpentelemetryAstronomyShop-Owners
+
+  - app_id: app-77de3b9d
+    name: Nobl9 Slack App
+    business_criticality_tier: tier2
+    ad_group_name: AD-N9-Nobl9SlackApp-Owners

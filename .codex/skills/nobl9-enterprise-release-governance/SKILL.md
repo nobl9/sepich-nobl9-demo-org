@@ -5,6 +5,20 @@ description: Use this skill when updating or evaluating the repo's Nobl9 enterpr
 
 # Nobl9 Enterprise Release Governance
 
+## Purpose
+
+Use this skill as the human-readable standard for this repo's enterprise SLO
+governance model.
+
+Think about the repo in three layers:
+
+- this skill is the human contract
+- `standards/slo-governance-policy.yaml` is the machine-readable policy
+- `scripts/` plus `.github/workflows/` are the enforcement and automation layer
+
+If a prospect or teammate asks, "What is the standard?" this skill should be the
+best place to start reading.
+
 ## Overview
 
 Use this skill for repo-local work where the goal is to keep the enterprise Nobl9 operating model coherent:
@@ -15,7 +29,51 @@ Use this skill for repo-local work where the goal is to keep the enterprise Nobl
 - governed UI changes sync back into Git
 - deployment workflows block or pass release based on the governed reliability contract
 
-This skill is modeled after the Glitchy Zoomies release-governance pattern, but adapted for this repo's broader enterprise framing.
+This skill captures the enterprise release-governance pattern used by this
+repo, adapted for a broader demo-org framing.
+
+## Enterprise Standard
+
+This repo's standard is:
+
+- teams can discover and create SLOs in the Nobl9 UI, from templates, or with
+  AI assistance
+- enterprise app inventory determines which applications are governance-relevant
+- governed applications determine which Nobl9 projects belong in Git
+- Git is the durable source of truth for governed reliability definitions
+- deployment pipelines, not team-local PR flows, are the enterprise enforcement
+  point
+- governed applications should not ship production code without the required
+  reliability contract unless an approved exception exists
+- UI-created changes for governed apps should sync back into Git so the source
+  of truth stays current
+
+## How To Read The Model
+
+Read the model from top to bottom like this:
+
+1. `inventory/app-inventory.yaml`
+   - broad enterprise app inventory
+   - simple upstream metadata such as `app_id`, `name`,
+     `business_criticality_tier`, and `ad_group_name`
+
+2. `inventory/governed-apps.yaml`
+   - the subset currently under enterprise reliability governance
+   - project-level scope for what belongs in the governed Nobl9 catalog
+
+3. `standards/slo-governance-policy.yaml`
+   - machine-readable policy for required labels, service-tier behavior, and
+     release checks
+
+4. `catalog/`
+   - the governed Nobl9 source of truth for included projects
+
+5. `scripts/slo_governance.py`
+   - policy evaluation logic used by local commands and GitHub workflows
+
+6. `.github/workflows/`
+   - the release-governance chain:
+     `gate -> deploy -> reconcile`
 
 ## When To Use
 
@@ -122,8 +180,23 @@ For this repo, assume:
 - deploy gate should be reusable as a GitHub workflow
 - the end-to-end demo flow is `gate -> deploy app -> reconcile Nobl9`
 
+## Demo Framing
+
+When explaining this repo to a customer or prospect, prefer this framing:
+
+- the skill explains the standard in plain language
+- the policy file expresses the standard as machine-readable rules
+- the scripts and workflows prove the standard can be enforced
+
+Good shorthand:
+
+`SKILL.md = human-readable governance standard`
+
+`slo-governance-policy.yaml = machine-readable policy`
+
+`slo_governance.py + GitHub workflows = enforcement`
+
 ## Notes
 
 - Be careful not to let `governed-apps.yaml` turn into a second policy engine.
 - Prefer simple enterprise-style inventory fields upstream and richer enforcement downstream.
-- When using Glitchy Zoomies as inspiration, copy the operating pattern, not the app-specific details.

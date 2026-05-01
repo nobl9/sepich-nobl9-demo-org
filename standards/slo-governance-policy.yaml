@@ -23,7 +23,7 @@ inventory_selection:
   app_id_label: app-id
   project_name_suffix: -demo
   service_tier_label: service-tier
-  default_service_tier: tier3
+  default_service_tier: unknown
 
 release_gate:
   enforce_at_pr: false
@@ -35,6 +35,11 @@ release_gate:
   fail_on_hidden_alert_method_secrets: true
 
 required_metadata_labels:
+  - app-id
+  - ad-group-name
+  - cost-center
+  - business-unit
+  - env-type
   - owner
   - service-tier
 
@@ -47,34 +52,13 @@ service_tiers:
     deploy_enforcement: required
   tier2:
     display_name: Critical dependency
-    required_slos:
-      - availability
-      - latency
-    deploy_enforcement: required
+    required_slos: []
+    deploy_enforcement: warning
   tier3:
     display_name: Non-critical or onboarding
-    required_slos:
-      - availability
+    required_slos: []
     deploy_enforcement: warning
-
-approved_patterns:
-  availability:
-    accepted_indicator_shapes:
-      - countMetrics
-      - rawMetric
-      - composite
-  latency:
-    accepted_indicator_shapes:
-      - rawMetric
-      - composite
-    approved_percentiles:
-      - p90
-
-exceptions:
-  required_fields:
-    - id
-    - project
-    - service
-    - reason
-    - owner
-    - expires_on
+  unknown:
+    display_name: Service tier not yet declared
+    required_slos: []
+    deploy_enforcement: warning

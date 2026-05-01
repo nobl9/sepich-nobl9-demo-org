@@ -55,6 +55,45 @@ def clean_document(document: dict) -> dict:
     return cleaned
 
 
+def governed_app_lookup(governed_apps: dict) -> dict[str, dict]:
+    return {
+        app.get("project"): app
+        for app in governed_apps.get("apps", [])
+        if app.get("project")
+    }
+
+
+def enrich_labels(document: dict, governed_app: dict | None) -> dict:
+    if not governed_app:
+        return document
+
+    enriched = copy.deepcopy(document)
+    metadata = enriched.setdefault("metadata", {})
+    labels = metadata.setdefault("labels", {})
+
+    app_id = governed_app.get("app_id")
+    if app_id:
+        labels["app-id"] = [app_id]
+
+    ad_group_name = governed_app.get("ad_group_name")
+    if ad_group_name:
+        labels["ad-group-name"] = [ad_group_name]
+
+    cost_center = governed_app.get("cost_center")
+    if cost_center:
+        labels["cost-center"] = [cost_center]
+
+    business_unit = governed_app.get("business_unit")
+    if business_unit:
+        labels["business-unit"] = [business_unit]
+
+    env_type = governed_app.get("env_type")
+    if env_type:
+        labels["env-type"] = [env_type]
+
+    return enriched
+
+
 def load_governed_apps() -> dict:
     with GOVERNED_APPS_PATH.open("r", encoding="utf-8") as handle:
         return yaml.safe_load(handle) or {}
@@ -116,6 +155,12 @@ def synthesize_project(app: dict) -> dict:
         labels["app-id"] = [app["app_id"]]
     if app.get("ad_group_name"):
         labels["ad-group-name"] = [app["ad_group_name"]]
+    if app.get("cost_center"):
+        labels["cost-center"] = [app["cost_center"]]
+    if app.get("business_unit"):
+        labels["business-unit"] = [app["business_unit"]]
+    if app.get("env_type"):
+        labels["env-type"] = [app["env_type"]]
     tier = app.get("derived_from", {}).get("business_criticality_tier")
     if tier:
         labels["business-criticality-tier"] = [tier]
@@ -140,6 +185,7 @@ def synthesize_project(app: dict) -> dict:
 def main() -> int:
     governed_apps = load_governed_apps()
     governed_scope = build_governed_scope(governed_apps)
+    governed_lookup = governed_app_lookup(governed_apps)
     if not governed_scope:
         raise SystemExit(
             f"No governed applications found in {GOVERNED_APPS_PATH}. Run sync_governed_apps.py first."
@@ -189,13 +235,17 @@ def main() -> int:
     CATALOG_ROOT.mkdir(parents=True, exist_ok=True)
 
     for document in filtered_projects:
-        write_yaml(project_path(document), clean_document(document))
+        governed_app = governed_lookup.get(document.get("metadata", {}).get("name"))
+        write_yaml(project_path(document), clean_document(enrich_labels(document, governed_app)))
     for document in filtered_services:
-        write_yaml(service_path(document), clean_document(document))
+        governed_app = governed_lookup.get(document.get("metadata", {}).get("project"))
+        write_yaml(service_path(document), clean_document(enrich_labels(document, governed_app)))
     for document in filtered_alert_policies:
-        write_yaml(alert_policy_path(document), clean_document(document))
+        governed_app = governed_lookup.get(document.get("metadata", {}).get("project"))
+        write_yaml(alert_policy_path(document), clean_document(enrich_labels(document, governed_app)))
     for document in filtered_slos:
-        write_yaml(slo_path(document), clean_document(document))
+        governed_app = governed_lookup.get(document.get("metadata", {}).get("project"))
+        write_yaml(slo_path(document), clean_document(enrich_labels(document, governed_app)))
 
     print(
         f"Wrote {len(filtered_projects)} governed projects, {len(filtered_services)} services, "

@@ -4,13 +4,21 @@ metadata:
   displayName: Storefront
   labels:
     app-id:
-    - storefront-platform-app
+    - app-c36bf0f7
     critical-app:
     - 'true'
     owner:
     - dan-sepich
     service-tier:
     - tier1
+    ad-group-name:
+    - AD-N9-StorefrontPlatform-Owners
+    cost-center:
+    - CC-1000
+    business-unit:
+    - Demo Platforms
+    env-type:
+    - prod
   name: storefront
   project: storefront-platform-demo
 spec:

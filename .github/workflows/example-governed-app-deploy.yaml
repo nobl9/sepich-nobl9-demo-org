@@ -1,4 +1,9 @@
 name: Example Governed App Deploy
+run-name: >-
+  Example Governed App Deploy /
+  ${{ inputs.project || inputs.app_id || 'unknown-target' }} /
+  ${{ inputs.service || 'all-services' }} /
+  ${{ inputs.environment }}
 
 on:
   workflow_dispatch:
@@ -10,10 +15,12 @@ on:
       project:
         description: "Optional governed Nobl9 project name"
         required: false
+        default: storefront-platform-demo
         type: string
       service:
         description: "Optional governed service name"
         required: false
+        default: storefront
         type: string
       environment:
         description: "Deployment environment label"
@@ -34,7 +41,7 @@ concurrency:
 
 jobs:
   governance_gate:
-    name: Governance Gate
+    name: 1. Governance Gate
     uses: ./.github/workflows/slo-deployment-gate.yaml
     with:
       app_id: ${{ inputs.app_id }}
@@ -43,7 +50,7 @@ jobs:
       environment: ${{ inputs.environment }}
 
   deploy_application:
-    name: Deploy Application
+    name: 2. Deploy Application
     needs: governance_gate
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
@@ -81,9 +88,55 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
   reconcile_nobl9:
-    name: Reconcile Nobl9
+    name: 3. Reconcile Nobl9
     needs: deploy_application
     uses: ./.github/workflows/slo-apply.yaml
     with:
       replay_from: ${{ inputs.replay_from }}
     secrets: inherit
+
+  demo_summary:
+    name: 4. Demo Run Summary
+    if: ${{ always() }}
+    needs:
+      - governance_gate
+      - deploy_application
+      - reconcile_nobl9
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish end-to-end summary
+        run: |
+          {
+            echo "## Example Governed App Deploy"
+            echo ""
+            echo "### Inputs"
+            echo ""
+            echo "- Environment: \`${{ inputs.environment }}\`"
+            if [ -n "${{ inputs.app_id }}" ]; then
+              echo "- App ID: \`${{ inputs.app_id }}\`"
+            fi
+            if [ -n "${{ inputs.project }}" ]; then
+              echo "- Project: \`${{ inputs.project }}\`"
+            fi
+            if [ -n "${{ inputs.service }}" ]; then
+              echo "- Service: \`${{ inputs.service }}\`"
+            fi
+            echo ""
+            echo "### Flow"
+            echo ""
+            echo "1. Governance gate checks whether the governed target is allowed to ship."
+            echo "2. Application deployment runs only if the gate passes."
+            echo "3. Nobl9 reconciliation updates live reliability state from the governed catalog."
+            echo ""
+            echo "### Job Results"
+            echo ""
+            echo "- Governance Gate: \`${{ needs.governance_gate.result }}\`"
+            echo "- Deploy Application: \`${{ needs.deploy_application.result }}\`"
+            echo "- Reconcile Nobl9: \`${{ needs.reconcile_nobl9.result }}\`"
+            echo ""
+            echo "### Demo Reading Guide"
+            echo ""
+            echo "- If the first job fails, the governed target was blocked by policy."
+            echo "- If all three jobs succeed, this run demonstrates the full GitHub release-governance path."
+            echo "- Previous runs can be used as proof that the gate and reconciliation flow are working end to end."
+          } >> "$GITHUB_STEP_SUMMARY"

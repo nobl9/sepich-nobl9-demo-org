@@ -48,6 +48,7 @@ def main() -> int:
     app_inventory = load_yaml(APP_INVENTORY_PATH)
     policy = load_yaml(POLICY_PATH)
     project_catalog = load_project_catalog()
+    inventory_defaults = app_inventory.get("defaults", {})
 
     inventory_selection = policy.get("inventory_selection", {})
     include_tiers = set(inventory_selection.get("auto_include_if_app_tier_in", ["tier1"]))
@@ -86,6 +87,9 @@ def main() -> int:
                 "name": app.get("name"),
                 "project": project,
                 "ad_group_name": app.get("ad_group_name"),
+                "cost_center": app.get("cost_center", inventory_defaults.get("cost_center")),
+                "business_unit": app.get("business_unit", inventory_defaults.get("business_unit")),
+                "env_type": app.get("env_type", inventory_defaults.get("env_type")),
                 "deployment_policy": "enforce",
                 "derived_from": {
                     "business_criticality_tier": app_tier,
