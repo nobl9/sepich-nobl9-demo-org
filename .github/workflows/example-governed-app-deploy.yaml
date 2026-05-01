@@ -135,9 +135,23 @@ jobs:
             echo "- Deploy Application: \`${{ needs.deploy_application.result }}\`"
             echo "- Reconcile Nobl9: \`${{ needs.reconcile_nobl9.result }}\`"
             echo ""
+            echo "### Outcome"
+            echo ""
+            if [ "${{ needs.governance_gate.result }}" = "failure" ]; then
+              echo "- This release stopped at the governance gate."
+              echo "- Deploy and Nobl9 reconcile were skipped on purpose."
+              echo "- Open job \`1. Governance Gate\` for the blocking reasons and investigation link."
+            elif [ "${{ needs.governance_gate.result }}" = "success" ] && [ "${{ needs.reconcile_nobl9.result }}" = "success" ]; then
+              echo "- This run completed the full governed release path."
+              echo "- The target passed the gate, the app deploy ran, and Nobl9 was reconciled from Git."
+            else
+              echo "- This run moved past the gate, but a later step needs attention."
+              echo "- Use the job results above to see whether deploy or reconcile needs follow-up."
+            fi
+            echo ""
             echo "### Demo Reading Guide"
             echo ""
-            echo "- If the first job fails, the governed target was blocked by policy."
-            echo "- If all three jobs succeed, this run demonstrates the full GitHub release-governance path."
-            echo "- Previous runs can be used as proof that the gate and reconciliation flow are working end to end."
+            echo "- Red first job = policy blocked the release."
+            echo "- Green first job = governance allowed the release to continue."
+            echo "- All green = full gate -> deploy -> reconcile path completed."
           } >> "$GITHUB_STEP_SUMMARY"
