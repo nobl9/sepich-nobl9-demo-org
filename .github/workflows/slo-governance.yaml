@@ -35,6 +35,9 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Install Python dependencies
+        run: python3 -m pip install PyYAML
+
       - name: Validate governance rules
         run: python3 scripts/slo_governance.py validate
 
@@ -53,6 +56,14 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Python dependencies
+        run: python3 -m pip install PyYAML
 
       - name: Set up Go
         uses: actions/setup-go@v5

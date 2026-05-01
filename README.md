@@ -11,7 +11,7 @@ This repo is designed to demo a more sustainable enterprise model for SLO govern
 The best human-readable entry point for the model is the repo-local governance
 skill:
 
-- [`.codex/skills/nobl9-enterprise-release-governance/SKILL.md`](/Users/dansepich/Documents/Repos/sepich-n9-demo-org/.codex/skills/nobl9-enterprise-release-governance/SKILL.md)
+- [`.codex/skills/nobl9-enterprise-release-governance/SKILL.md`](./.codex/skills/nobl9-enterprise-release-governance/SKILL.md)
 
 Think about the layers like this:
 
