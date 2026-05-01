@@ -153,6 +153,10 @@ def enrich_labels(document: dict, governed_app: dict | None, app_inventory: dict
     if environment_type:
         labels["env-type"] = [environment_type]
 
+    tier = governed_app.get("derived_from", {}).get("business_criticality_tier")
+    if tier:
+        labels["business-criticality-tier"] = [tier]
+
     return enriched
 
 

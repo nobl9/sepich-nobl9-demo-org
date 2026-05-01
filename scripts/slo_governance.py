@@ -146,7 +146,12 @@ def governed_apps_by_app_id(inventory: dict) -> dict[str, dict]:
 
 
 def service_tier(service: Resource) -> str | None:
-    values = service.labels.get("service-tier", [])
+    policy = load_policy()
+    tier_label = (
+        policy.get("inventory_selection", {}).get("service_tier_label")
+        or "business-criticality-tier"
+    )
+    values = service.labels.get(tier_label, [])
     return values[0] if values else None
 
 
@@ -447,7 +452,7 @@ def inventory(resources: list[Resource], markdown: bool = False) -> str:
             )
             for service in sorted(bucket["services"], key=lambda item: item.name):
                 review_cycle = service.spec.get("reviewCycle", {}).get("rrule", "missing")
-                tier = ", ".join(service.labels.get("service-tier", []))
+                tier = service_tier(service) or ""
                 slo_count = len(slos_by_service.get((project_name, service.name), []))
                 lines.append(
                     f"- Service `{service.name}`: tier `{tier}`, review `{review_cycle}`, {slo_count} attached SLOs"
@@ -462,7 +467,7 @@ def inventory(resources: list[Resource], markdown: bool = False) -> str:
         )
         for service in sorted(bucket["services"], key=lambda item: item.name):
             review_cycle = service.spec.get("reviewCycle", {}).get("rrule", "missing")
-            tier = ",".join(service.labels.get("service-tier", []))
+            tier = service_tier(service) or ""
             slo_count = len(slos_by_service.get((project_name, service.name), []))
             lines.append(
                 f"  - {service.name}: tier={tier} review={review_cycle} slos={slo_count}"

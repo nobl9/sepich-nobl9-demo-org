@@ -19,6 +19,8 @@ metadata:
     - demo-platform
     service-tier:
     - tier1
+    business-criticality-tier:
+    - tier1
   name: landing-page-latency-fast-burn
   project: storefront-platform-demo
 spec:

@@ -62,7 +62,7 @@ Read the model from top to bottom like this:
    - project-level scope for what belongs in the governed Nobl9 catalog
 
 3. `standards/slo-governance-policy.yaml`
-   - machine-readable policy for required labels, service-tier behavior, and
+   - machine-readable policy for required labels, business-criticality-tier behavior, and
      release checks
 
 4. `catalog/`

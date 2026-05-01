@@ -22,7 +22,7 @@ inventory_selection:
   app_criticality_field: business_criticality_tier
   app_id_label: app-id
   project_name_suffix: -demo
-  service_tier_label: service-tier
+  service_tier_label: business-criticality-tier
   default_service_tier: unknown
 
 release_gate:
@@ -40,8 +40,7 @@ required_metadata_labels:
   - cost-center
   - business-unit
   - env-type
-  - owner
-  - service-tier
+  - business-criticality-tier
 
 service_tiers:
   tier1:

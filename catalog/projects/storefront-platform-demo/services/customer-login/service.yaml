@@ -19,6 +19,8 @@ metadata:
     - dan-sepich
     service-tier:
     - tier1
+    business-criticality-tier:
+    - tier1
   name: customer-login
   project: storefront-platform-demo
 spec:
