@@ -5,6 +5,9 @@ run-name: >-
   ${{ inputs.service || 'all-services' }} /
   ${{ inputs.environment || 'production' }}
 
+env:
+  SLOCTL_VERSION: "0.22.0"
+
 on:
   workflow_dispatch:
     inputs:
@@ -71,7 +74,17 @@ jobs:
       - name: Install Python dependencies
         run: python3 -m pip install PyYAML
 
+      - name: Install sloctl
+        run: |
+          curl -fsSL \
+            -o "$RUNNER_TEMP/sloctl" \
+            "https://github.com/nobl9/sloctl/releases/download/v${SLOCTL_VERSION}/sloctl-${SLOCTL_VERSION}-linux-amd64"
+          chmod +x "$RUNNER_TEMP/sloctl"
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+
       - name: Publish deployment gate summary
+        id: gate_summary
+        continue-on-error: true
         shell: bash
         run: |
           {
@@ -101,22 +114,17 @@ jobs:
           if [ -n "${{ inputs.service }}" ]; then
             args+=(--service "${{ inputs.service }}")
           fi
-          python3 scripts/slo_governance.py deploy-gate "${args[@]}" >> "$GITHUB_STEP_SUMMARY"
+          gate_exit=0
+          python3 scripts/slo_governance.py deploy-gate "${args[@]}" >> "$GITHUB_STEP_SUMMARY" || gate_exit=$?
+          echo "gate_exit=$gate_exit" >> "$GITHUB_OUTPUT"
 
       - name: Enforce deployment gate
         shell: bash
         run: |
-          args=(--environment "${{ inputs.environment || 'production' }}")
-          if [ -n "${{ inputs.app_id }}" ]; then
-            args+=(--app-id "${{ inputs.app_id }}")
+          if [ "${{ steps.gate_summary.outputs.gate_exit }}" != "0" ]; then
+            echo "Deployment gate blocked this release. See the summary above for details." >&2
+            exit "${{ steps.gate_summary.outputs.gate_exit }}"
           fi
-          if [ -n "${{ inputs.project }}" ]; then
-            args+=(--project "${{ inputs.project }}")
-          fi
-          if [ -n "${{ inputs.service }}" ]; then
-            args+=(--service "${{ inputs.service }}")
-          fi
-          python3 scripts/slo_governance.py deploy-gate "${args[@]}"
 
       - name: Publish gate explanation
         if: ${{ success() }}
