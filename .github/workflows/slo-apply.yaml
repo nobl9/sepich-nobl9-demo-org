@@ -3,6 +3,9 @@ run-name: >-
   Apply Nobl9 Org Catalog /
   ${{ inputs.replay_from != '' && 'replay' || 'standard' }}
 
+env:
+  SLOCTL_VERSION: "0.22.0"
+
 on:
   workflow_dispatch:
     inputs:
@@ -74,15 +77,13 @@ jobs:
       - name: Check apply readiness
         run: python3 scripts/slo_governance.py apply-readiness
 
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: "1.22"
-
       - name: Install sloctl
         run: |
-          go install github.com/nobl9/sloctl/cmd/sloctl@latest
-          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+          curl -fsSL \
+            -o "$RUNNER_TEMP/sloctl" \
+            "https://github.com/nobl9/sloctl/releases/download/v${SLOCTL_VERSION}/sloctl-${SLOCTL_VERSION}-linux-amd64"
+          chmod +x "$RUNNER_TEMP/sloctl"
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
 
       - name: Apply catalog
         if: ${{ inputs.replay_from == '' }}
