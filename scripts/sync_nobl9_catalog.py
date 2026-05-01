@@ -7,6 +7,7 @@ import subprocess
 import sys
 from pathlib import Path
 import shutil
+from datetime import date, datetime
 
 import yaml
 
@@ -53,7 +54,22 @@ def clean_document(document: dict) -> dict:
     if not spec:
         cleaned.pop("spec", None)
 
-    return cleaned
+    return normalize_temporal_values(cleaned)
+
+
+def normalize_temporal_values(value):
+    if isinstance(value, datetime):
+        return value.strftime("%Y-%m-%dT%H:%M:%S")
+    if isinstance(value, date):
+        return value.isoformat()
+    if isinstance(value, list):
+        return [normalize_temporal_values(item) for item in value]
+    if isinstance(value, dict):
+        return {
+            key: normalize_temporal_values(item)
+            for key, item in value.items()
+        }
+    return value
 
 
 def governed_app_lookup(governed_apps: dict) -> dict[str, dict]:
