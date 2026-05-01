@@ -640,17 +640,25 @@ def deploy_gate(
         for annotation in fail_annotations:
             spec = annotation.get("spec", {}) or {}
             anomaly_findings = True
+            slo_name = spec.get("slo") or "unknown-slo"
+            category = spec.get("category") or "unknown-anomaly"
+            started = spec.get("startTime")
             errors.append(
-                f"Active anomaly blocks deployment: {target_project}/{annotation.get('metadata', {}).get('name')} "
-                f"category={spec.get('category')} slo={spec.get('slo')} started={spec.get('startTime')}"
+                f"Deployment blocked: SLO `{slo_name}` has an active `{category}` anomaly"
+                + (f" since {started}" if started else "")
+                + "."
             )
 
         for annotation in warn_annotations:
             spec = annotation.get("spec", {}) or {}
             anomaly_findings = True
+            slo_name = spec.get("slo") or "unknown-slo"
+            category = spec.get("category") or "unknown-anomaly"
+            started = spec.get("startTime")
             warnings.append(
-                f"Active anomaly warning: {target_project}/{annotation.get('metadata', {}).get('name')} "
-                f"category={spec.get('category')} slo={spec.get('slo')} started={spec.get('startTime')}"
+                f"Warning: SLO `{slo_name}` has an active `{category}` anomaly"
+                + (f" since {started}" if started else "")
+                + "."
             )
 
     if anomaly_findings:
