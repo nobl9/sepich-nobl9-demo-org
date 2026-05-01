@@ -1,0 +1,40 @@
+apiVersion: n9/v1alpha
+kind: SLO
+metadata:
+  displayName: Post-purchase user experience
+  labels:
+    composite-demo:
+    - composite-demo
+  name: post-purchase-user-experience
+  project: e-commerce
+spec:
+  alertPolicies:
+  - fast-budget-drop
+  - slow-budget-drop
+  - slow-burn
+  budgetingMethod: Occurrences
+  description: Measures experience after user had made purchase.
+  objectives:
+  - composite:
+      aggregation: Reliability
+      components:
+        objectives:
+        - objective: availability
+          project: e-commerce
+          slo: invoices-availability
+          weight: 4
+          whenDelayed: CountAsBad
+        - objective: availability
+          project: e-commerce
+          slo: emailing-availability
+          weight: 3
+          whenDelayed: CountAsBad
+      maxDelay: 45m
+    displayName: Post-purchase user experience
+    name: post-purchase-user-experience
+    target: 0.9
+  service: user-experience
+  timeWindows:
+  - count: 14
+    isRolling: true
+    unit: Day

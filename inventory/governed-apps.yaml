@@ -3,6 +3,13 @@ portfolio: sepich-nobl9-demo-org
 description: Governed production applications synced from app-inventory.yaml using
   enterprise criticality metadata.
 apps:
+- app_id: app-ddb899d8
+  name: Call Center
+  project: call-center
+  deployment_policy: enforce
+  derived_from:
+    business_criticality_tier: tier1
+    project_source: nobl9
 - app_id: app-c36bf0f7
   name: Storefront Platform
   project: storefront-platform-demo
@@ -13,6 +20,13 @@ apps:
 - app_id: app-26f8ef6c
   name: Digital Banking Platform
   project: banking-app
+  deployment_policy: enforce
+  derived_from:
+    business_criticality_tier: tier1
+    project_source: nobl9
+- app_id: app-80fde303
+  name: Consumer Reservations
+  project: consumer-reservations
   deployment_policy: enforce
   derived_from:
     business_criticality_tier: tier1

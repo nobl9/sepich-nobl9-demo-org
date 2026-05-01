@@ -1,0 +1,11 @@
+apiVersion: n9/v1alpha
+kind: Service
+metadata:
+  displayName: Store Website
+  labels:
+    composite-demo:
+    - composite-demo
+  name: store-web
+  project: e-commerce
+spec:
+  description: User facing store website.

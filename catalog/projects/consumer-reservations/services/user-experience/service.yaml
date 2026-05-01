@@ -1,0 +1,25 @@
+apiVersion: n9/v1alpha
+kind: Service
+metadata:
+  displayName: User Experience
+  labels:
+    demo:
+    - 'yes'
+    app-id:
+    - app-80fde303
+    ad-group-name:
+    - AD-N9-ConsumerReservations-Owners
+    cost-center:
+    - CC-1000
+    business-unit:
+    - Demo Platforms
+    env-type:
+    - prod
+    business-criticality-tier:
+    - tier1
+  name: user-experience
+  project: consumer-reservations
+spec:
+  description: Composites that show the reliability of user journeys.
+  responsibleUsers:
+  - id: 00udz52enaMa5jKhf417

@@ -51,8 +51,10 @@ def load_yaml(path: Path) -> dict:
 def load_yaml_text(raw: str) -> list[dict]:
     documents = yaml.safe_load(raw) or []
     if isinstance(documents, list):
-        return documents
-    return [documents]
+        return [document for document in documents if isinstance(document, dict)]
+    if isinstance(documents, dict):
+        return [documents]
+    return []
 
 
 def load_resources() -> list[Resource]:
@@ -98,6 +100,10 @@ def classify_objective(objective: dict) -> str | None:
     ]
     if any("availability" in item for item in candidates):
         return "availability"
+    if any("failure" in item for item in candidates):
+        return "failure"
+    if any("success" in item for item in candidates):
+        return "success"
     if any("latency" in item for item in candidates):
         return "latency"
     if objective.get("countMetrics"):
@@ -107,9 +113,56 @@ def classify_objective(objective: dict) -> str | None:
     if objective.get("composite"):
         if "latency" in " ".join(candidates):
             return "latency"
+        if "failure" in " ".join(candidates):
+            return "failure"
+        if "success" in " ".join(candidates):
+            return "success"
         if "availability" in " ".join(candidates):
             return "availability"
     return None
+
+
+def required_slo_groups_for_tier(policy: dict, tier: str | None) -> list[dict]:
+    tier_defaults = policy.get("service_tiers", {})
+    tier_policy = tier_defaults.get(tier, {})
+    groups = tier_policy.get("required_slo_groups")
+    if groups is not None:
+        return groups
+
+    legacy_required = tier_policy.get("required_slos", [])
+    return [
+        {"name": category, "any_of": [category]}
+        for category in legacy_required
+    ]
+
+
+def classify_slo_categories(slo: Resource) -> set[str]:
+    return {
+        category
+        for category in (
+            classify_objective(objective) for objective in slo.spec.get("objectives", [])
+        )
+        if category
+    }
+
+
+def standard_slo_names_for_service(
+    service: Resource,
+    slos_by_service: dict[tuple[str, str], list[Resource]],
+    policy: dict,
+) -> set[str]:
+    tier = service_tier(service)
+    required_groups = required_slo_groups_for_tier(policy, tier)
+    service_slos = slos_by_service.get((service.project, service.name), [])
+    standard_slo_names: set[str] = set()
+
+    for group in required_groups:
+        allowed_categories = set(group.get("any_of", []))
+        for slo in service_slos:
+            if classify_slo_categories(slo) & allowed_categories:
+                standard_slo_names.add(slo.name)
+
+    return standard_slo_names
 
 
 def load_inventory() -> dict:
@@ -238,8 +291,6 @@ def evaluate_service(
     exception = exception_lookup.get(service_key)
     exception_active = bool(exception and exception_is_active(exception))
     required_labels = policy.get("required_metadata_labels", [])
-    tier_defaults = policy.get("service_tiers", {})
-
     missing_labels = [label for label in required_labels if not service.labels.get(label)]
     if missing_labels:
         message = (
@@ -252,7 +303,7 @@ def evaluate_service(
             errors.append(message)
 
     tier = service_tier(service)
-    required_categories = tier_defaults.get(tier, {}).get("required_slos", [])
+    required_groups = required_slo_groups_for_tier(policy, tier)
     service_slos = slos_by_service.get(service_key, [])
     for slo in service_slos:
         missing_slo_labels = [label for label in required_labels if not slo.labels.get(label)]
@@ -271,16 +322,20 @@ def evaluate_service(
     coverage = {
         category
         for slo in service_slos
-        for category in (
-            classify_objective(objective) for objective in slo.spec.get("objectives", [])
-        )
-        if category
+        for category in classify_slo_categories(slo)
     }
-    missing_categories = sorted(set(required_categories) - coverage)
-    if missing_categories:
+    missing_groups = [
+        group for group in required_groups
+        if not set(group.get("any_of", [])) & coverage
+    ]
+    if missing_groups:
+        missing_descriptions = [
+            " / ".join(group.get("any_of", []))
+            for group in missing_groups
+        ]
         message = (
             f"Governed service missing required SLO coverage: {service.project}/{service.name} -> "
-            + ", ".join(missing_categories)
+            + ", ".join(missing_descriptions)
         )
         if exception_active:
             warnings.append(message + f" (exception {exception.get('id')} active)")
@@ -314,10 +369,15 @@ def project_resources(resources: list[Resource], project: str) -> list[Resource]
     ]
 
 
-def validate(resources: list[Resource]) -> list[str]:
+def validate(
+    resources: list[Resource],
+    reference_resources: list[Resource] | None = None,
+) -> list[str]:
     errors: list[str] = []
     if not resources:
         return ["No YAML manifests found under catalog/."]
+
+    reference_resources = reference_resources or resources
 
     seen_keys: dict[tuple[str, str | None, str], Path] = {}
     projects: dict[str, Resource] = {}
@@ -341,6 +401,7 @@ def validate(resources: list[Resource]) -> list[str]:
         else:
             seen_keys[resource.key] = resource.path
 
+    for resource in reference_resources:
         if resource.kind == "Project":
             projects[resource.name] = resource
         elif resource.kind == "Service":
@@ -575,7 +636,7 @@ def deploy_gate(
     )
 
     scoped_resources = project_resources(resources, target_project)
-    scoped_validation_errors = validate(scoped_resources)
+    scoped_validation_errors = validate(scoped_resources, reference_resources=resources)
     if scoped_validation_errors:
         errors.extend(scoped_validation_errors)
         return False, infos, warnings, errors
@@ -614,6 +675,16 @@ def deploy_gate(
         errors.extend(service_errors)
         warnings.extend(service_warnings)
 
+    standard_slo_names = {
+        slo_name
+        for selected_service in selected_services
+        for slo_name in standard_slo_names_for_service(
+            selected_service,
+            slos_by_service,
+            policy,
+        )
+    }
+
     anomaly_policy = policy.get("anomaly_gate", {}) or {}
     anomaly_environments = set(anomaly_policy.get("environments", []))
     if anomaly_policy.get("enabled") and environment in anomaly_environments:
@@ -643,11 +714,18 @@ def deploy_gate(
             slo_name = spec.get("slo") or "unknown-slo"
             category = spec.get("category") or "unknown-anomaly"
             started = spec.get("startTime")
-            errors.append(
-                f"Deployment blocked: SLO `{slo_name}` has an active `{category}` anomaly"
-                + (f" since {started}" if started else "")
-                + "."
-            )
+            if slo_name in standard_slo_names:
+                errors.append(
+                    f"Deployment blocked: standard SLO `{slo_name}` has an active `{category}` anomaly"
+                    + (f" since {started}" if started else "")
+                    + "."
+                )
+            else:
+                warnings.append(
+                    f"SLO `{slo_name}` has an active `{category}` anomaly"
+                    + (f" since {started}" if started else "")
+                    + ", but it is not currently one of the required standard SLOs for this deployment."
+                )
 
         for annotation in warn_annotations:
             spec = annotation.get("spec", {}) or {}

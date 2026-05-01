@@ -2,21 +2,21 @@ apiVersion: n9/v1alpha
 kind: SLO
 metadata:
   displayName: User Journey
-  name: 1f41cece-8df1-4063-9fea-ae51533fa8d5
-  project: banking-app
   labels:
-    app-id:
-    - app-26f8ef6c
     ad-group-name:
     - AD-N9-DigitalBankingPlatform-Owners
-    cost-center:
-    - CC-1000
-    business-unit:
-    - Demo Platforms
-    env-type:
-    - prod
+    app-id:
+    - app-26f8ef6c
     business-criticality-tier:
     - tier1
+    business-unit:
+    - Demo Platforms
+    cost-center:
+    - CC-1000
+    env-type:
+    - prod
+  name: 1f41cece-8df1-4063-9fea-ae51533fa8d5
+  project: banking-app
 spec:
   budgetingMethod: Occurrences
   description: ''

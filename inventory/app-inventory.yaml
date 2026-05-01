@@ -8,7 +8,7 @@ description: >
 apps:
   - app_id: app-ddb899d8
     name: Call Center
-    business_criticality_tier: tier2
+    business_criticality_tier: tier1
     enterprise_metadata:
       assignment_group: AD-N9-CallCenter-Owners
       cost_center: CC-1000
@@ -107,7 +107,7 @@ apps:
 
   - app_id: app-80fde303
     name: Consumer Reservations
-    business_criticality_tier: tier2
+    business_criticality_tier: tier1
     enterprise_metadata:
       assignment_group: AD-N9-ConsumerReservations-Owners
       cost_center: CC-1000

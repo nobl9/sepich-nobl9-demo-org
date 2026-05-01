@@ -1,0 +1,43 @@
+apiVersion: n9/v1alpha
+kind: SLO
+metadata:
+  displayName: View Reservation Latency
+  name: view-reservation-latency
+  project: consumer-reservations
+  labels:
+    app-id:
+    - app-80fde303
+    ad-group-name:
+    - AD-N9-ConsumerReservations-Owners
+    cost-center:
+    - CC-1000
+    business-unit:
+    - Demo Platforms
+    env-type:
+    - prod
+    business-criticality-tier:
+    - tier1
+spec:
+  budgetingMethod: Occurrences
+  description: Latency of viewing reservations API
+  indicator:
+    metricSource:
+      kind: Direct
+      name: glitchy-zoomies
+      project: integrations
+  objectives:
+  - displayName: Latency
+    name: objective-2
+    op: lte
+    rawMetric:
+      query:
+        gcm:
+          projectId: glitchy-zoomies
+          promql: 1000 * histogram_quantile(0.90, sum by (le) (rate(demo_request_duration_seconds_bucket{service="landing_page",path="/api/visit"}[1m])))
+    target: 0.95
+    value: 2000
+  service: view-reservation
+  timeWindows:
+  - count: 28
+    isRolling: true
+    unit: Day

@@ -2,21 +2,21 @@ apiVersion: n9/v1alpha
 kind: SLO
 metadata:
   displayName: Payments Success Rate
-  name: b344c0b8-2362-4ff5-bef3-4aad015515e1
-  project: banking-app
   labels:
-    app-id:
-    - app-26f8ef6c
     ad-group-name:
     - AD-N9-DigitalBankingPlatform-Owners
-    cost-center:
-    - CC-1000
-    business-unit:
-    - Demo Platforms
-    env-type:
-    - prod
+    app-id:
+    - app-26f8ef6c
     business-criticality-tier:
     - tier1
+    business-unit:
+    - Demo Platforms
+    cost-center:
+    - CC-1000
+    env-type:
+    - prod
+  name: b344c0b8-2362-4ff5-bef3-4aad015515e1
+  project: banking-app
 spec:
   budgetingMethod: Occurrences
   description: ''

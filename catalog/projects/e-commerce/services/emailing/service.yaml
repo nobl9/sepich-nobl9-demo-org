@@ -1,0 +1,11 @@
+apiVersion: n9/v1alpha
+kind: Service
+metadata:
+  displayName: Emailing System
+  labels:
+    composite-demo:
+    - composite-demo
+  name: emailing
+  project: e-commerce
+spec:
+  description: Service responsible for delivering e-mail confirmations to users.

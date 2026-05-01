@@ -3,22 +3,22 @@ kind: Service
 metadata:
   displayName: Check Balance
   labels:
-    api:
-    - 'true'
-    demo:
-    - 'yes'
-    app-id:
-    - app-26f8ef6c
     ad-group-name:
     - AD-N9-DigitalBankingPlatform-Owners
-    cost-center:
-    - CC-1000
-    business-unit:
-    - Demo Platforms
-    env-type:
-    - prod
+    api:
+    - 'true'
+    app-id:
+    - app-26f8ef6c
     business-criticality-tier:
     - tier1
+    business-unit:
+    - Demo Platforms
+    cost-center:
+    - CC-1000
+    demo:
+    - 'yes'
+    env-type:
+    - prod
   name: check-balance
   project: banking-app
 spec:

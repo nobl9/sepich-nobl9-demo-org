@@ -1,0 +1,11 @@
+apiVersion: n9/v1alpha
+kind: Service
+metadata:
+  displayName: User Experience
+  labels:
+    composite-demo:
+    - composite-demo
+  name: user-experience
+  project: e-commerce
+spec:
+  description: Service for grouping all user experience based SLOs.
