@@ -44,10 +44,10 @@ anomaly_gate:
   lookback_hours: 24
   fail_on_active_categories:
     - NoDataAnomaly
+  warn_on_active_categories:
     - NoBurnAnomaly
     - ConstantBurnAnomaly
     - IncrementalMismatchAnomaly
-  warn_on_active_categories: []
 
 required_metadata_labels:
   - app-id

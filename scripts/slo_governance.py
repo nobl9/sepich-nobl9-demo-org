@@ -656,7 +656,7 @@ def deploy_gate(
             category = spec.get("category") or "unknown-anomaly"
             started = spec.get("startTime")
             warnings.append(
-                f"Warning: SLO `{slo_name}` has an active `{category}` anomaly"
+                f"SLO `{slo_name}` has an active `{category}` anomaly"
                 + (f" since {started}" if started else "")
                 + "."
             )
