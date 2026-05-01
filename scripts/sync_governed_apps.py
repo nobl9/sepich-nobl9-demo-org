@@ -44,6 +44,41 @@ def slugify(value: str | None) -> str:
     return collapsed.strip("-") or "governed-app"
 
 
+def enterprise_metadata(defaults: dict, app: dict) -> dict:
+    default_metadata = (
+        defaults.get("enterprise_metadata", {})
+        or defaults.get("service_now_metadata", {})
+        or defaults
+    )
+    app_metadata = (
+        app.get("enterprise_metadata", {})
+        or app.get("service_now_metadata", {})
+        or {}
+    )
+    return {
+        "assignment_group": (
+            app_metadata.get("assignment_group")
+            or app.get("ad_group_name")
+        ),
+        "cost_center": (
+            app_metadata.get("cost_center")
+            or app.get("cost_center")
+            or default_metadata.get("cost_center")
+        ),
+        "business_unit": (
+            app_metadata.get("business_unit")
+            or app.get("business_unit")
+            or default_metadata.get("business_unit")
+        ),
+        "environment_type": (
+            app_metadata.get("environment_type")
+            or app.get("env_type")
+            or default_metadata.get("environment_type")
+            or default_metadata.get("env_type")
+        ),
+    }
+
+
 def main() -> int:
     app_inventory = load_yaml(APP_INVENTORY_PATH)
     policy = load_yaml(POLICY_PATH)
@@ -86,10 +121,6 @@ def main() -> int:
                 "app_id": app_id,
                 "name": app.get("name"),
                 "project": project,
-                "ad_group_name": app.get("ad_group_name"),
-                "cost_center": app.get("cost_center", inventory_defaults.get("cost_center")),
-                "business_unit": app.get("business_unit", inventory_defaults.get("business_unit")),
-                "env_type": app.get("env_type", inventory_defaults.get("env_type")),
                 "deployment_policy": "enforce",
                 "derived_from": {
                     "business_criticality_tier": app_tier,

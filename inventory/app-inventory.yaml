@@ -5,178 +5,309 @@ description: >
   Each entry represents a real Nobl9 project and defaults to tier2 so governed
   scope can be enabled intentionally by promoting selected apps to tier1.
 
-defaults:
-  cost_center: CC-1000
-  business_unit: Demo Platforms
-  env_type: prod
-
 apps:
   - app_id: app-ddb899d8
     name: Call Center
     business_criticality_tier: tier2
-    ad_group_name: AD-N9-CallCenter-Owners
+    enterprise_metadata:
+      assignment_group: AD-N9-CallCenter-Owners
+      cost_center: CC-1000
+      business_unit: Demo Platforms
+      environment_type: prod
 
   - app_id: app-e8c39c4d
     name: Operations
     business_criticality_tier: tier2
-    ad_group_name: AD-N9-Operations-Owners
+    enterprise_metadata:
+      assignment_group: AD-N9-Operations-Owners
+      cost_center: CC-1000
+      business_unit: Demo Platforms
+      environment_type: prod
 
   - app_id: app-fbc3b3c2
     name: GS-Sandbox Project
     business_criticality_tier: tier2
-    ad_group_name: AD-N9-GsSandboxProject-Owners
+    enterprise_metadata:
+      assignment_group: AD-N9-GsSandboxProject-Owners
+      cost_center: CC-1000
+      business_unit: Demo Platforms
+      environment_type: prod
 
   - app_id: app-c3de307c
     name: Dan Test
     business_criticality_tier: tier2
-    ad_group_name: AD-N9-DanTest-Owners
+    enterprise_metadata:
+      assignment_group: AD-N9-DanTest-Owners
+      cost_center: CC-1000
+      business_unit: Demo Platforms
+      environment_type: prod
 
   - app_id: app-a2e1a877
     name: integrations
     business_criticality_tier: tier2
-    ad_group_name: AD-N9-Integrations-Owners
+    enterprise_metadata:
+      assignment_group: AD-N9-Integrations-Owners
+      cost_center: CC-1000
+      business_unit: Demo Platforms
+      environment_type: prod
 
   - app_id: app-c36bf0f7
     name: Storefront Platform
     business_criticality_tier: tier1
-    ad_group_name: AD-N9-StorefrontPlatform-Owners
+    enterprise_metadata:
+      assignment_group: AD-N9-StorefrontPlatform-Owners
+      cost_center: CC-1000
+      business_unit: Demo Platforms
+      environment_type: prod
 
   - app_id: app-91973952
     name: E-commerce
     business_criticality_tier: tier2
-    ad_group_name: AD-N9-ECommerce-Owners
+    enterprise_metadata:
+      assignment_group: AD-N9-ECommerce-Owners
+      cost_center: CC-1000
+      business_unit: Demo Platforms
+      environment_type: prod
 
   - app_id: app-80232262
     name: External Services
     business_criticality_tier: tier2
-    ad_group_name: AD-N9-ExternalServices-Owners
+    enterprise_metadata:
+      assignment_group: AD-N9-ExternalServices-Owners
+      cost_center: CC-1000
+      business_unit: Demo Platforms
+      environment_type: prod
 
   - app_id: app-26f8ef6c
     name: Digital Banking Platform
     business_criticality_tier: tier2
-    ad_group_name: AD-N9-DigitalBankingPlatform-Owners
+    enterprise_metadata:
+      assignment_group: AD-N9-DigitalBankingPlatform-Owners
+      cost_center: CC-1000
+      business_unit: Demo Platforms
+      environment_type: prod
 
   - app_id: app-6b1f3c47
     name: Consumer Queue
     business_criticality_tier: tier2
-    ad_group_name: AD-N9-ConsumerQueue-Owners
+    enterprise_metadata:
+      assignment_group: AD-N9-ConsumerQueue-Owners
+      cost_center: CC-1000
+      business_unit: Demo Platforms
+      environment_type: prod
 
   - app_id: app-badf2ceb
     name: supply-chain
     business_criticality_tier: tier2
-    ad_group_name: AD-N9-SupplyChain-Owners
+    enterprise_metadata:
+      assignment_group: AD-N9-SupplyChain-Owners
+      cost_center: CC-1000
+      business_unit: Demo Platforms
+      environment_type: prod
 
   - app_id: app-80fde303
     name: Consumer Reservations
     business_criticality_tier: tier2
-    ad_group_name: AD-N9-ConsumerReservations-Owners
+    enterprise_metadata:
+      assignment_group: AD-N9-ConsumerReservations-Owners
+      cost_center: CC-1000
+      business_unit: Demo Platforms
+      environment_type: prod
 
   - app_id: app-35f8b746
     name: Infrastructure
     business_criticality_tier: tier2
-    ad_group_name: AD-N9-Infrastructure-Owners
+    enterprise_metadata:
+      assignment_group: AD-N9-Infrastructure-Owners
+      cost_center: CC-1000
+      business_unit: Demo Platforms
+      environment_type: prod
 
   - app_id: app-2135a47c
     name: vSphere Performance
     business_criticality_tier: tier2
-    ad_group_name: AD-N9-VspherePerformance-Owners
+    enterprise_metadata:
+      assignment_group: AD-N9-VspherePerformance-Owners
+      cost_center: CC-1000
+      business_unit: Demo Platforms
+      environment_type: prod
 
   - app_id: app-e76b2a81
     name: Stock Quotes
     business_criticality_tier: tier2
-    ad_group_name: AD-N9-StockQuotes-Owners
+    enterprise_metadata:
+      assignment_group: AD-N9-StockQuotes-Owners
+      cost_center: CC-1000
+      business_unit: Demo Platforms
+      environment_type: prod
 
   - app_id: app-e3ff8d9d
     name: Insurance Quote App
     business_criticality_tier: tier2
-    ad_group_name: AD-N9-InsuranceQuoteApp-Owners
+    enterprise_metadata:
+      assignment_group: AD-N9-InsuranceQuoteApp-Owners
+      cost_center: CC-1000
+      business_unit: Demo Platforms
+      environment_type: prod
 
   - app_id: app-0ed60ce7
     name: IAM
     business_criticality_tier: tier2
-    ad_group_name: AD-N9-Iam-Owners
+    enterprise_metadata:
+      assignment_group: AD-N9-Iam-Owners
+      cost_center: CC-1000
+      business_unit: Demo Platforms
+      environment_type: prod
 
   - app_id: app-ed323327
     name: Retail Website
     business_criticality_tier: tier2
-    ad_group_name: AD-N9-RetailWebsite-Owners
+    enterprise_metadata:
+      assignment_group: AD-N9-RetailWebsite-Owners
+      cost_center: CC-1000
+      business_unit: Demo Platforms
+      environment_type: prod
 
   - app_id: app-a5b1ccc8
     name: Streaming App
     business_criticality_tier: tier2
-    ad_group_name: AD-N9-StreamingApp-Owners
+    enterprise_metadata:
+      assignment_group: AD-N9-StreamingApp-Owners
+      cost_center: CC-1000
+      business_unit: Demo Platforms
+      environment_type: prod
 
   - app_id: app-7505d64a
     name: default
     business_criticality_tier: tier2
-    ad_group_name: AD-N9-Default-Owners
+    enterprise_metadata:
+      assignment_group: AD-N9-Default-Owners
+      cost_center: CC-1000
+      business_unit: Demo Platforms
+      environment_type: prod
 
   - app_id: app-6f4baa56
     name: test-target-2
     business_criticality_tier: tier2
-    ad_group_name: AD-N9-TestTarget2-Owners
+    enterprise_metadata:
+      assignment_group: AD-N9-TestTarget2-Owners
+      cost_center: CC-1000
+      business_unit: Demo Platforms
+      environment_type: prod
 
   - app_id: app-c1d5a281
     name: Mobile App
     business_criticality_tier: tier2
-    ad_group_name: AD-N9-MobileApp-Owners
+    enterprise_metadata:
+      assignment_group: AD-N9-MobileApp-Owners
+      cost_center: CC-1000
+      business_unit: Demo Platforms
+      environment_type: prod
 
   - app_id: app-79e921f1
     name: Dynatrace Auto SLO
     business_criticality_tier: tier2
-    ad_group_name: AD-N9-DynatraceAutoSlo-Owners
+    enterprise_metadata:
+      assignment_group: AD-N9-DynatraceAutoSlo-Owners
+      cost_center: CC-1000
+      business_unit: Demo Platforms
+      environment_type: prod
 
   - app_id: app-fc180c07
     name: Pet Adoptions Website
     business_criticality_tier: tier2
-    ad_group_name: AD-N9-PetAdoptionsWebsite-Owners
+    enterprise_metadata:
+      assignment_group: AD-N9-PetAdoptionsWebsite-Owners
+      cost_center: CC-1000
+      business_unit: Demo Platforms
+      environment_type: prod
 
   - app_id: app-c062a5a4
     name: test-target
     business_criticality_tier: tier2
-    ad_group_name: AD-N9-TestTarget-Owners
+    enterprise_metadata:
+      assignment_group: AD-N9-TestTarget-Owners
+      cost_center: CC-1000
+      business_unit: Demo Platforms
+      environment_type: prod
 
   - app_id: app-23f3fd77
     name: Portal
     business_criticality_tier: tier2
-    ad_group_name: AD-N9-Portal-Owners
+    enterprise_metadata:
+      assignment_group: AD-N9-Portal-Owners
+      cost_center: CC-1000
+      business_unit: Demo Platforms
+      environment_type: prod
 
   - app_id: app-3111aa67
     name: Point of Sale
     business_criticality_tier: tier2
-    ad_group_name: AD-N9-PointOfSale-Owners
+    enterprise_metadata:
+      assignment_group: AD-N9-PointOfSale-Owners
+      cost_center: CC-1000
+      business_unit: Demo Platforms
+      environment_type: prod
 
   - app_id: app-a94a8fe5
     name: Test
     business_criticality_tier: tier2
-    ad_group_name: AD-N9-Test-Owners
+    enterprise_metadata:
+      assignment_group: AD-N9-Test-Owners
+      cost_center: CC-1000
+      business_unit: Demo Platforms
+      environment_type: prod
 
   - app_id: app-8c9d4039
     name: Security Vault
     business_criticality_tier: tier2
-    ad_group_name: AD-N9-SecurityVault-Owners
+    enterprise_metadata:
+      assignment_group: AD-N9-SecurityVault-Owners
+      cost_center: CC-1000
+      business_unit: Demo Platforms
+      environment_type: prod
 
   - app_id: app-99d3a7eb
     name: Bookings
     business_criticality_tier: tier2
-    ad_group_name: AD-N9-Bookings-Owners
+    enterprise_metadata:
+      assignment_group: AD-N9-Bookings-Owners
+      cost_center: CC-1000
+      business_unit: Demo Platforms
+      environment_type: prod
 
   - app_id: app-6a69e454
     name: Retail Banking Backend
     business_criticality_tier: tier2
-    ad_group_name: AD-N9-RetailBankingBackend-Owners
+    enterprise_metadata:
+      assignment_group: AD-N9-RetailBankingBackend-Owners
+      cost_center: CC-1000
+      business_unit: Demo Platforms
+      environment_type: prod
 
   - app_id: app-89e495e7
     name: Travel Website
     business_criticality_tier: tier2
-    ad_group_name: AD-N9-TravelWebsite-Owners
+    enterprise_metadata:
+      assignment_group: AD-N9-TravelWebsite-Owners
+      cost_center: CC-1000
+      business_unit: Demo Platforms
+      environment_type: prod
 
   - app_id: app-c6d1c3d3
     name: OpenTelemetry Astronomy Shop
     business_criticality_tier: tier2
-    ad_group_name: AD-N9-OpentelemetryAstronomyShop-Owners
+    enterprise_metadata:
+      assignment_group: AD-N9-OpentelemetryAstronomyShop-Owners
+      cost_center: CC-1000
+      business_unit: Demo Platforms
+      environment_type: prod
 
   - app_id: app-77de3b9d
     name: Nobl9 Slack App
     business_criticality_tier: tier2
-    ad_group_name: AD-N9-Nobl9SlackApp-Owners
+    enterprise_metadata:
+      assignment_group: AD-N9-Nobl9SlackApp-Owners
+      cost_center: CC-1000
+      business_unit: Demo Platforms
+      environment_type: prod

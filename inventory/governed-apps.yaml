@@ -6,10 +6,6 @@ apps:
 - app_id: app-c36bf0f7
   name: Storefront Platform
   project: storefront-platform-demo
-  ad_group_name: AD-N9-StorefrontPlatform-Owners
-  cost_center: CC-1000
-  business_unit: Demo Platforms
-  env_type: prod
   deployment_policy: enforce
   derived_from:
     business_criticality_tier: tier1

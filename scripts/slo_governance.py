@@ -200,6 +200,20 @@ def evaluate_service(
     tier = service_tier(service)
     required_categories = tier_defaults.get(tier, {}).get("required_slos", [])
     service_slos = slos_by_service.get(service_key, [])
+    for slo in service_slos:
+        missing_slo_labels = [label for label in required_labels if not slo.labels.get(label)]
+        if not missing_slo_labels:
+            continue
+
+        message = (
+            f"Governed SLO missing required labels: {slo.project}/{slo.name} "
+            f"(service {service.name}) -> " + ", ".join(missing_slo_labels)
+        )
+        if exception_active:
+            warnings.append(message + f" (exception {exception.get('id')} active)")
+        else:
+            errors.append(message)
+
     coverage = {
         category
         for slo in service_slos
