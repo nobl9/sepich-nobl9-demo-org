@@ -34,6 +34,18 @@ release_gate:
   fail_on_missing_required_slos: true
   fail_on_hidden_alert_method_secrets: true
 
+anomaly_gate:
+  enabled: true
+  environments:
+    - production
+  lookback_hours: 24
+  fail_on_active_categories:
+    - NoDataAnomaly
+    - NoBurnAnomaly
+    - ConstantBurnAnomaly
+    - IncrementalMismatchAnomaly
+  warn_on_active_categories: []
+
 required_metadata_labels:
   - app-id
   - ad-group-name
