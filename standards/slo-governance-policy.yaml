@@ -16,6 +16,9 @@ governance_model:
     - team-local-review
     - design-time-slo-creation
 
+ui_links:
+  nobl9_org_id: dansepich-2KadyONlKmHJ
+
 inventory_selection:
   auto_include_if_app_tier_in:
     - tier1

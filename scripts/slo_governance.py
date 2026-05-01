@@ -9,6 +9,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
+from urllib.parse import quote
 
 import yaml
 
@@ -653,8 +654,16 @@ def deploy_gate(
             )
 
     if anomaly_findings:
+        org_id = (policy.get("ui_links", {}) or {}).get("nobl9_org_id")
+        if org_id:
+            oversight_url = (
+                "https://app.nobl9.com/dashboards/slo-oversight"
+                f"?org={quote(org_id)}&project={quote(target_project)}"
+            )
+        else:
+            oversight_url = "https://app.nobl9.com/"
         infos.append(
-            f"Investigate in Nobl9: open [Nobl9](https://app.nobl9.com/), go to Dashboards -> SLO oversight, and filter Project = `{target_project}`."
+            f"Investigate in Nobl9: open [SLO Oversight for `{target_project}`]({oversight_url})."
         )
 
     passed = not errors
