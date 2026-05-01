@@ -95,6 +95,7 @@ jobs:
           SLOCTL_CLIENT_ID: ${{ secrets.NOBL9_CLIENT_ID }}
           SLOCTL_CLIENT_SECRET: ${{ secrets.NOBL9_CLIENT_SECRET }}
         run: |
+          gate_output="$RUNNER_TEMP/gate-output.md"
           {
             echo "## Nobl9 Deployment Gate"
             echo ""
@@ -123,7 +124,40 @@ jobs:
             args+=(--service "${{ inputs.service }}")
           fi
           gate_exit=0
-          python3 scripts/slo_governance.py deploy-gate "${args[@]}" >> "$GITHUB_STEP_SUMMARY" || gate_exit=$?
+          python3 scripts/slo_governance.py deploy-gate "${args[@]}" > "$gate_output" || gate_exit=$?
+          cat "$gate_output" >> "$GITHUB_STEP_SUMMARY"
+          error_count="$(grep -c '^- Error:' "$gate_output" || true)"
+          warning_count="$(grep -c '^- Warning:' "$gate_output" || true)"
+          echo "error_count=$error_count" >> "$GITHUB_OUTPUT"
+          echo "warning_count=$warning_count" >> "$GITHUB_OUTPUT"
+          echo "### What happened" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          if [ "$gate_exit" != "0" ]; then
+            echo "- Result: this release was **blocked** by the governance gate." >> "$GITHUB_STEP_SUMMARY"
+            echo "- Why: one or more policy checks failed for this governed target." >> "$GITHUB_STEP_SUMMARY"
+            if [ "$error_count" != "0" ]; then
+              echo "- Blocking reasons:" >> "$GITHUB_STEP_SUMMARY"
+              grep '^- Error:' "$gate_output" | sed 's/^- Error: /  - /' | head -5 >> "$GITHUB_STEP_SUMMARY"
+            fi
+            if [ "$warning_count" != "0" ]; then
+              echo "- Additional warnings:" >> "$GITHUB_STEP_SUMMARY"
+              grep '^- Warning:' "$gate_output" | sed 's/^- Warning: /  - /' | head -5 >> "$GITHUB_STEP_SUMMARY"
+            fi
+            {
+              echo ""
+              echo "### What to do next"
+              echo ""
+              echo "- Open the Nobl9 investigation link above to inspect the affected project."
+              echo "- Update the governed catalog or the live SLO configuration so the target meets policy."
+              echo "- Rerun this workflow to confirm the gate passes."
+            } >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "- Result: this governed target is **allowed to move forward** in the release flow." >> "$GITHUB_STEP_SUMMARY"
+            if [ "$warning_count" != "0" ]; then
+              echo "- Warnings to review:" >> "$GITHUB_STEP_SUMMARY"
+              grep '^- Warning:' "$gate_output" | sed 's/^- Warning: /  - /' | head -5 >> "$GITHUB_STEP_SUMMARY"
+            fi
+          fi
           echo "gate_exit=$gate_exit" >> "$GITHUB_OUTPUT"
 
       - name: Enforce deployment gate
