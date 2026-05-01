@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 import re
+import subprocess
 
 import yaml
 
@@ -25,6 +26,21 @@ def load_project_catalog() -> list[dict]:
         with path.open("r", encoding="utf-8") as handle:
             projects.append(yaml.safe_load(handle) or {})
     return projects
+
+
+def load_live_projects() -> list[dict]:
+    result = subprocess.run(
+        ["sloctl", "get", "projects", "-o", "yaml"],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        return []
+
+    documents = yaml.safe_load(result.stdout) or []
+    if isinstance(documents, list):
+        return documents
+    return [documents]
 
 
 def first_label(metadata: dict, label_name: str) -> str | None:
@@ -82,7 +98,9 @@ def enterprise_metadata(defaults: dict, app: dict) -> dict:
 def main() -> int:
     app_inventory = load_yaml(APP_INVENTORY_PATH)
     policy = load_yaml(POLICY_PATH)
-    project_catalog = load_project_catalog()
+    live_projects = load_live_projects()
+    project_catalog = live_projects or load_project_catalog()
+    project_source_name = "nobl9" if live_projects else "catalog"
     inventory_defaults = app_inventory.get("defaults", {})
 
     inventory_selection = policy.get("inventory_selection", {})
@@ -112,7 +130,7 @@ def main() -> int:
 
         if matching_projects:
             project = matching_projects[0].get("metadata", {}).get("name")
-            project_source = "catalog"
+            project_source = project_source_name
         else:
             project = f"{slugify(app.get('name'))}{project_name_suffix}"
             project_source = "naming-policy"

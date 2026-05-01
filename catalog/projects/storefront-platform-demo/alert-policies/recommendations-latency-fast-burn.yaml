@@ -3,22 +3,22 @@ kind: AlertPolicy
 metadata:
   displayName: Recommendations p90 Latency Fast Burn
   labels:
+    ad-group-name:
+    - AD-N9-StorefrontPlatform-Owners
     app-id:
     - app-c36bf0f7
+    business-unit:
+    - Demo Platforms
+    cost-center:
+    - CC-1000
     critical-app:
     - 'true'
+    env-type:
+    - prod
     owner:
     - demo-platform
     service-tier:
     - tier2
-    ad-group-name:
-    - AD-N9-StorefrontPlatform-Owners
-    cost-center:
-    - CC-1000
-    business-unit:
-    - Demo Platforms
-    env-type:
-    - prod
   name: recommendations-latency-fast-burn
   project: storefront-platform-demo
 spec:
