@@ -1,4 +1,7 @@
 name: Apply Nobl9 Org Catalog
+run-name: >-
+  Apply Nobl9 Org Catalog /
+  ${{ inputs.replay_from != '' && 'replay' || 'standard' }}
 
 on:
   workflow_dispatch:
@@ -23,7 +26,7 @@ concurrency:
 
 jobs:
   apply:
-    name: Apply Approved Catalog
+    name: 3. Reconcile Nobl9 Catalog
     runs-on: ubuntu-latest
     environment: nobl9-demo
 
@@ -37,6 +40,25 @@ jobs:
 
       - name: Check out repository
         uses: actions/checkout@v4
+
+      - name: Publish apply summary header
+        run: |
+          {
+            echo "## Apply Nobl9 Org Catalog"
+            echo ""
+            echo "- Branch: \`${GITHUB_REF_NAME}\`"
+            if [ -n "${{ inputs.replay_from }}" ]; then
+              echo "- Replay from: \`${{ inputs.replay_from }}\`"
+            else
+              echo "- Replay from: \`not requested\`"
+            fi
+            echo ""
+            echo "### Reconcile Steps"
+            echo ""
+            echo "- Validate governed catalog"
+            echo "- Check apply readiness"
+            echo "- Apply governed manifests to Nobl9"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -74,3 +96,14 @@ jobs:
           SLOCTL_CLIENT_SECRET: ${{ secrets.NOBL9_CLIENT_SECRET }}
           SLOCTL_FILES_PROMPT_ENABLED: "false"
         run: sloctl --no-config-file apply -y -f 'catalog/projects/**/*.yaml' --replay --from="${{ inputs.replay_from }}"
+
+      - name: Publish apply completion
+        if: ${{ success() }}
+        run: |
+          {
+            echo ""
+            echo "### Result"
+            echo ""
+            echo "- Status: \`governed catalog reconciled\`"
+            echo "- Meaning: live Nobl9 has been updated from the Git-governed catalog."
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -10,7 +10,8 @@ The demo environment already has a functioning Nobl9 org full of projects, servi
 - the governed catalog becomes the Git source of truth
 - deployment pipelines enforce policy for governed services
 
-This is intentionally inspired by the Glitchy Zoomies deployment model, where the important idea is that software and the reliability contract move forward together at release time.
+This model is intentionally centered on the idea that software and the
+reliability contract move forward together at release time.
 
 ## Guardrails enforced in-repo
 
@@ -71,12 +72,20 @@ Runs manually from GitHub Actions for demos and also supports reusable `workflow
 
 ### `Example Governed App Deploy`
 
-Runs manually from GitHub Actions as a customer-facing illustration of the full Zoomies-style pattern.
+Runs manually from GitHub Actions as a customer-facing illustration of the full
+release-governance pattern.
 
 - calls the reusable `Nobl9 Deployment Gate` workflow first
 - runs a placeholder application deployment job
 - calls the reusable `Apply Nobl9 Org Catalog` workflow to reconcile live Nobl9 state after deploy
 - demonstrates the intended order of operations even before a real application deployment pipeline is connected
+
+For demos, this should be the primary workflow to run and revisit in Actions
+history because it now produces:
+
+- descriptive run names with target and environment
+- numbered jobs that match the release flow
+- a final `Demo Run Summary` job that explains what happened in business terms
 
 ## Enterprise Sync Model
 
