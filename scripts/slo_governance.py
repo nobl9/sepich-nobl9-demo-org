@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import argparse
+import subprocess
 import sys
 from collections import defaultdict
 from dataclasses import dataclass
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
-from datetime import date
 
 import yaml
 
@@ -44,6 +45,13 @@ class Resource:
 def load_yaml(path: Path) -> dict:
     with path.open("r", encoding="utf-8") as handle:
         return yaml.safe_load(handle) or {}
+
+
+def load_yaml_text(raw: str) -> list[dict]:
+    documents = yaml.safe_load(raw) or []
+    if isinstance(documents, list):
+        return documents
+    return [documents]
 
 
 def load_resources() -> list[Resource]:
@@ -113,6 +121,46 @@ def load_policy() -> dict:
 
 def load_exceptions() -> dict:
     return load_yaml(EXCEPTIONS_PATH)
+
+
+def load_active_anomaly_annotations(
+    project: str,
+    categories: list[str],
+    lookback_hours: int,
+) -> tuple[list[dict], str | None]:
+    if not categories:
+        return [], None
+
+    cutoff = datetime.now(timezone.utc) - timedelta(hours=lookback_hours)
+    command = [
+        "sloctl",
+        "get",
+        "annotations",
+        "-p",
+        project,
+        "--system",
+        "--from",
+        cutoff.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "-o",
+        "yaml",
+    ]
+    for category in categories:
+        command.append(f"--category={category}")
+
+    result = subprocess.run(command, capture_output=True, text=True)
+    if result.returncode != 0:
+        message = (result.stderr or result.stdout or "").strip() or "unknown error"
+        return [], message
+
+    annotations = load_yaml_text(result.stdout)
+    active = [
+        annotation
+        for annotation in annotations
+        if annotation.get("kind") == "Annotation"
+        and annotation.get("spec", {}).get("category") in categories
+        and not annotation.get("spec", {}).get("endTime")
+    ]
+    return active, None
 
 
 def build_exception_lookup() -> dict[tuple[str, str], dict]:
@@ -563,6 +611,43 @@ def deploy_gate(
         )
         errors.extend(service_errors)
         warnings.extend(service_warnings)
+
+    anomaly_policy = policy.get("anomaly_gate", {}) or {}
+    anomaly_environments = set(anomaly_policy.get("environments", []))
+    if anomaly_policy.get("enabled") and environment in anomaly_environments:
+        lookback_hours = int(anomaly_policy.get("lookback_hours", 24))
+        fail_categories = anomaly_policy.get("fail_on_active_categories", []) or []
+        warn_categories = anomaly_policy.get("warn_on_active_categories", []) or []
+
+        fail_annotations, fail_query_error = load_active_anomaly_annotations(
+            target_project, fail_categories, lookback_hours
+        )
+        warn_annotations, warn_query_error = load_active_anomaly_annotations(
+            target_project, warn_categories, lookback_hours
+        )
+
+        if fail_query_error:
+            warnings.append(
+                f"Unable to query active fail-on anomalies for project `{target_project}`: {fail_query_error}"
+            )
+        if warn_query_error:
+            warnings.append(
+                f"Unable to query active warn-on anomalies for project `{target_project}`: {warn_query_error}"
+            )
+
+        for annotation in fail_annotations:
+            spec = annotation.get("spec", {}) or {}
+            errors.append(
+                f"Active anomaly blocks deployment: {target_project}/{annotation.get('metadata', {}).get('name')} "
+                f"category={spec.get('category')} slo={spec.get('slo')} started={spec.get('startTime')}"
+            )
+
+        for annotation in warn_annotations:
+            spec = annotation.get("spec", {}) or {}
+            warnings.append(
+                f"Active anomaly warning: {target_project}/{annotation.get('metadata', {}).get('name')} "
+                f"category={spec.get('category')} slo={spec.get('slo')} started={spec.get('startTime')}"
+            )
 
     passed = not errors
     if passed:
