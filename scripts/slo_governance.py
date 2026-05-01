@@ -533,6 +533,7 @@ def deploy_gate(
     infos: list[str] = []
     warnings: list[str] = []
     errors: list[str] = []
+    anomaly_findings = False
 
     inventory_data = load_inventory()
     policy = load_policy()
@@ -637,6 +638,7 @@ def deploy_gate(
 
         for annotation in fail_annotations:
             spec = annotation.get("spec", {}) or {}
+            anomaly_findings = True
             errors.append(
                 f"Active anomaly blocks deployment: {target_project}/{annotation.get('metadata', {}).get('name')} "
                 f"category={spec.get('category')} slo={spec.get('slo')} started={spec.get('startTime')}"
@@ -644,10 +646,16 @@ def deploy_gate(
 
         for annotation in warn_annotations:
             spec = annotation.get("spec", {}) or {}
+            anomaly_findings = True
             warnings.append(
                 f"Active anomaly warning: {target_project}/{annotation.get('metadata', {}).get('name')} "
                 f"category={spec.get('category')} slo={spec.get('slo')} started={spec.get('startTime')}"
             )
+
+    if anomaly_findings:
+        infos.append(
+            f"Investigate in Nobl9: open [Nobl9](https://app.nobl9.com/), go to Dashboards -> SLO oversight, and filter Project = `{target_project}`."
+        )
 
     passed = not errors
     if passed:
