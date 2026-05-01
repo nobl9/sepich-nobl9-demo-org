@@ -14,6 +14,7 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 CATALOG_ROOT = ROOT / "catalog" / "projects"
 GOVERNED_APPS_PATH = ROOT / "inventory" / "governed-apps.yaml"
+APP_INVENTORY_PATH = ROOT / "inventory" / "app-inventory.yaml"
 EXPORTS = (
     ["sloctl", "get", "projects", "-o", "yaml"],
     ["sloctl", "get", "services", "-A", "-o", "yaml"],
@@ -63,39 +64,89 @@ def governed_app_lookup(governed_apps: dict) -> dict[str, dict]:
     }
 
 
-def enrich_labels(document: dict, governed_app: dict | None) -> dict:
+def inventory_app_lookup(app_inventory: dict) -> dict[str, dict]:
+    return {
+        app.get("app_id"): app
+        for app in app_inventory.get("apps", [])
+        if app.get("app_id")
+    }
+
+
+def inventory_enterprise_metadata(app_inventory: dict, governed_app: dict) -> dict:
+    defaults = (
+        app_inventory.get("defaults", {}).get("enterprise_metadata", {})
+        or app_inventory.get("defaults", {}).get("service_now_metadata", {})
+        or app_inventory.get("defaults", {})
+    )
+    app = inventory_app_lookup(app_inventory).get(governed_app.get("app_id"), {})
+    metadata = (
+        app.get("enterprise_metadata", {})
+        or app.get("service_now_metadata", {})
+        or {}
+    )
+    return {
+        "assignment_group": (
+            metadata.get("assignment_group")
+            or app.get("ad_group_name")
+        ),
+        "cost_center": (
+            metadata.get("cost_center")
+            or app.get("cost_center")
+            or defaults.get("cost_center")
+        ),
+        "business_unit": (
+            metadata.get("business_unit")
+            or app.get("business_unit")
+            or defaults.get("business_unit")
+        ),
+        "environment_type": (
+            metadata.get("environment_type")
+            or app.get("env_type")
+            or defaults.get("environment_type")
+            or defaults.get("env_type")
+        ),
+    }
+
+
+def enrich_labels(document: dict, governed_app: dict | None, app_inventory: dict) -> dict:
     if not governed_app:
         return document
 
     enriched = copy.deepcopy(document)
     metadata = enriched.setdefault("metadata", {})
     labels = metadata.setdefault("labels", {})
+    enterprise_metadata = inventory_enterprise_metadata(app_inventory, governed_app)
 
     app_id = governed_app.get("app_id")
     if app_id:
         labels["app-id"] = [app_id]
 
-    ad_group_name = governed_app.get("ad_group_name")
-    if ad_group_name:
-        labels["ad-group-name"] = [ad_group_name]
+    assignment_group = enterprise_metadata.get("assignment_group")
+    if assignment_group:
+        labels["ad-group-name"] = [assignment_group]
 
-    cost_center = governed_app.get("cost_center")
+    cost_center = enterprise_metadata.get("cost_center")
     if cost_center:
         labels["cost-center"] = [cost_center]
 
-    business_unit = governed_app.get("business_unit")
+    business_unit = enterprise_metadata.get("business_unit")
     if business_unit:
         labels["business-unit"] = [business_unit]
 
-    env_type = governed_app.get("env_type")
-    if env_type:
-        labels["env-type"] = [env_type]
+    environment_type = enterprise_metadata.get("environment_type")
+    if environment_type:
+        labels["env-type"] = [environment_type]
 
     return enriched
 
 
 def load_governed_apps() -> dict:
     with GOVERNED_APPS_PATH.open("r", encoding="utf-8") as handle:
+        return yaml.safe_load(handle) or {}
+
+
+def load_app_inventory() -> dict:
+    with APP_INVENTORY_PATH.open("r", encoding="utf-8") as handle:
         return yaml.safe_load(handle) or {}
 
 
@@ -147,20 +198,21 @@ def build_governed_scope(governed_apps: dict) -> set[str]:
     }
 
 
-def synthesize_project(app: dict) -> dict:
+def synthesize_project(app: dict, app_inventory: dict) -> dict:
     labels = {
         "governed-app": ["true"],
     }
+    enterprise_metadata = inventory_enterprise_metadata(app_inventory, app)
     if app.get("app_id"):
         labels["app-id"] = [app["app_id"]]
-    if app.get("ad_group_name"):
-        labels["ad-group-name"] = [app["ad_group_name"]]
-    if app.get("cost_center"):
-        labels["cost-center"] = [app["cost_center"]]
-    if app.get("business_unit"):
-        labels["business-unit"] = [app["business_unit"]]
-    if app.get("env_type"):
-        labels["env-type"] = [app["env_type"]]
+    if enterprise_metadata.get("assignment_group"):
+        labels["ad-group-name"] = [enterprise_metadata["assignment_group"]]
+    if enterprise_metadata.get("cost_center"):
+        labels["cost-center"] = [enterprise_metadata["cost_center"]]
+    if enterprise_metadata.get("business_unit"):
+        labels["business-unit"] = [enterprise_metadata["business_unit"]]
+    if enterprise_metadata.get("environment_type"):
+        labels["env-type"] = [enterprise_metadata["environment_type"]]
     tier = app.get("derived_from", {}).get("business_criticality_tier")
     if tier:
         labels["business-criticality-tier"] = [tier]
@@ -184,6 +236,7 @@ def synthesize_project(app: dict) -> dict:
 
 def main() -> int:
     governed_apps = load_governed_apps()
+    app_inventory = load_app_inventory()
     governed_scope = build_governed_scope(governed_apps)
     governed_lookup = governed_app_lookup(governed_apps)
     if not governed_scope:
@@ -205,7 +258,7 @@ def main() -> int:
     for app in governed_apps.get("apps", []):
         project_name = app.get("project")
         if project_name in governed_scope and project_name not in existing_project_names:
-            filtered_projects.append(synthesize_project(app))
+            filtered_projects.append(synthesize_project(app, app_inventory))
 
     filtered_services = [
         document
@@ -236,16 +289,28 @@ def main() -> int:
 
     for document in filtered_projects:
         governed_app = governed_lookup.get(document.get("metadata", {}).get("name"))
-        write_yaml(project_path(document), clean_document(enrich_labels(document, governed_app)))
+        write_yaml(
+            project_path(document),
+            clean_document(enrich_labels(document, governed_app, app_inventory)),
+        )
     for document in filtered_services:
         governed_app = governed_lookup.get(document.get("metadata", {}).get("project"))
-        write_yaml(service_path(document), clean_document(enrich_labels(document, governed_app)))
+        write_yaml(
+            service_path(document),
+            clean_document(enrich_labels(document, governed_app, app_inventory)),
+        )
     for document in filtered_alert_policies:
         governed_app = governed_lookup.get(document.get("metadata", {}).get("project"))
-        write_yaml(alert_policy_path(document), clean_document(enrich_labels(document, governed_app)))
+        write_yaml(
+            alert_policy_path(document),
+            clean_document(enrich_labels(document, governed_app, app_inventory)),
+        )
     for document in filtered_slos:
         governed_app = governed_lookup.get(document.get("metadata", {}).get("project"))
-        write_yaml(slo_path(document), clean_document(enrich_labels(document, governed_app)))
+        write_yaml(
+            slo_path(document),
+            clean_document(enrich_labels(document, governed_app, app_inventory)),
+        )
 
     print(
         f"Wrote {len(filtered_projects)} governed projects, {len(filtered_services)} services, "

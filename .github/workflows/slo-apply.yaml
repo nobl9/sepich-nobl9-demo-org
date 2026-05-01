@@ -65,6 +65,9 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Install Python dependencies
+        run: python3 -m pip install PyYAML
+
       - name: Validate governance rules
         run: python3 scripts/slo_governance.py validate
 

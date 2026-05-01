@@ -55,7 +55,7 @@ Read the model from top to bottom like this:
 1. `inventory/app-inventory.yaml`
    - broad enterprise app inventory
    - simple upstream metadata such as `app_id`, `name`,
-     `business_criticality_tier`, and `ad_group_name`
+     `business_criticality_tier`, and `enterprise_metadata`
 
 2. `inventory/governed-apps.yaml`
    - the subset currently under enterprise reliability governance

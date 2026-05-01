@@ -160,6 +160,6 @@ For demo purposes, the app inventory is intentionally lightweight and easy to ex
 - `app_id`: a stable enterprise UID
 - `name`: human-readable application name
 - `business_criticality_tier`: the criticality signal used for governance scope
-- `ad_group_name`: a stand-in for enterprise ownership and access mapping
+- `enterprise_metadata`: a lightweight stand-in for upstream CMDB metadata such as assignment group, cost center, business unit, and environment type
 
 The idea is to make this feel closer to an upstream enterprise application registry such as ServiceNow, not a Nobl9-specific modeling file.

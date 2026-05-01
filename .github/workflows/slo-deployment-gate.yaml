@@ -68,6 +68,9 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Install Python dependencies
+        run: python3 -m pip install PyYAML
+
       - name: Publish deployment gate summary
         shell: bash
         run: |

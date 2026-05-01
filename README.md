@@ -11,7 +11,7 @@ This repo is designed to demo a more sustainable enterprise model for SLO govern
 The best human-readable entry point for the model is the repo-local governance
 skill:
 
-- [`.codex/skills/nobl9-enterprise-release-governance/SKILL.md`](/Users/dansepich/Documents/Repos/sepich-n9-demo-org/.codex/skills/nobl9-enterprise-release-governance/SKILL.md)
+- [`.codex/skills/nobl9-enterprise-release-governance/SKILL.md`](./.codex/skills/nobl9-enterprise-release-governance/SKILL.md)
 
 Think about the layers like this:
 
@@ -95,8 +95,8 @@ This demo models that connective tissue explicitly:
 
 - `inventory/app-inventory.yaml` represents the broader enterprise app inventory
 - `inventory/governed-apps.yaml` is the synced subset used for deployment governance and governed catalog buildout
-- each app record is intentionally simple: `app_id`, `name`, `business_criticality_tier`, and `ad_group_name`
-- shared inventory defaults can also drive derived governance labels such as `cost-center`, `business-unit`, and `env-type`
+- each app record is intentionally simple: `app_id`, `name`, `business_criticality_tier`, and `enterprise_metadata`
+- `enterprise_metadata` carries enterprise-style fields such as `assignment_group`, `cost_center`, `business_unit`, and `environment_type`
 - apps marked `tier1` in inventory metadata are automatically included in governed scope
 - when a governed app has no live Nobl9 project yet, a naming policy generates the initial project name and a bootstrap project manifest
 
