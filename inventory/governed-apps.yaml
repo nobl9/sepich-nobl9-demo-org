@@ -9,4 +9,11 @@ apps:
   deployment_policy: enforce
   derived_from:
     business_criticality_tier: tier1
-    project_source: catalog
+    project_source: nobl9
+- app_id: app-26f8ef6c
+  name: Digital Banking Platform
+  project: banking-app
+  deployment_policy: enforce
+  derived_from:
+    business_criticality_tier: tier1
+    project_source: nobl9

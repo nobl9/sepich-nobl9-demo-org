@@ -1,0 +1,46 @@
+apiVersion: n9/v1alpha
+kind: SLO
+metadata:
+  displayName: Check Balance Success Rate
+  name: 4fcb829e-b7dc-4652-884e-f4803c31e8e7
+  project: banking-app
+  labels:
+    app-id:
+    - app-26f8ef6c
+    ad-group-name:
+    - AD-N9-DigitalBankingPlatform-Owners
+    cost-center:
+    - CC-1000
+    business-unit:
+    - Demo Platforms
+    env-type:
+    - prod
+spec:
+  budgetingMethod: Occurrences
+  description: ''
+  indicator:
+    metricSource:
+      kind: Direct
+      name: n9-partner-sample-app
+      project: integrations
+  objectives:
+  - countMetrics:
+      good:
+        gcm:
+          projectId: n9-partner-sample-app
+          promql: sum(rate(app_frontend_requests_total{target="/api/checkout",status="200"}[1m]))
+      incremental: false
+      total:
+        gcm:
+          projectId: n9-partner-sample-app
+          promql: sum(rate(app_frontend_requests_total{target="/api/checkout"}[1m]))
+    displayName: Check Balance Success Rate
+    name: objective-1
+    primary: false
+    target: 0.998
+    value: 0
+  service: check-balance
+  timeWindows:
+  - count: 28
+    isRolling: true
+    unit: Day

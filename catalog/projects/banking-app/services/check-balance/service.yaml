@@ -1,0 +1,25 @@
+apiVersion: n9/v1alpha
+kind: Service
+metadata:
+  displayName: Check Balance
+  labels:
+    api:
+    - 'true'
+    demo:
+    - 'yes'
+    app-id:
+    - app-26f8ef6c
+    ad-group-name:
+    - AD-N9-DigitalBankingPlatform-Owners
+    cost-center:
+    - CC-1000
+    business-unit:
+    - Demo Platforms
+    env-type:
+    - prod
+  name: check-balance
+  project: banking-app
+spec:
+  description: Service containing SLOs related to the check balance services.
+  responsibleUsers:
+  - id: 00uem4p1xJYEnV0Uc416

@@ -80,7 +80,7 @@ apps:
 
   - app_id: app-26f8ef6c
     name: Digital Banking Platform
-    business_criticality_tier: tier2
+    business_criticality_tier: tier1
     enterprise_metadata:
       assignment_group: AD-N9-DigitalBankingPlatform-Owners
       cost_center: CC-1000
