@@ -43,6 +43,7 @@ jobs:
   governance_gate:
     name: 1. Governance Gate
     uses: ./.github/workflows/slo-deployment-gate.yaml
+    secrets: inherit
     with:
       app_id: ${{ inputs.app_id }}
       project: ${{ inputs.project }}

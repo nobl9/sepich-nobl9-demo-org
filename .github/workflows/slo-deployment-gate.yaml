@@ -49,6 +49,11 @@ on:
         required: false
         default: production
         type: string
+    secrets:
+      NOBL9_CLIENT_ID:
+        required: false
+      NOBL9_CLIENT_SECRET:
+        required: false
 
 permissions:
   contents: read
@@ -86,6 +91,9 @@ jobs:
         id: gate_summary
         continue-on-error: true
         shell: bash
+        env:
+          SLOCTL_CLIENT_ID: ${{ secrets.NOBL9_CLIENT_ID }}
+          SLOCTL_CLIENT_SECRET: ${{ secrets.NOBL9_CLIENT_SECRET }}
         run: |
           {
             echo "## Nobl9 Deployment Gate"
@@ -120,6 +128,9 @@ jobs:
 
       - name: Enforce deployment gate
         shell: bash
+        env:
+          SLOCTL_CLIENT_ID: ${{ secrets.NOBL9_CLIENT_ID }}
+          SLOCTL_CLIENT_SECRET: ${{ secrets.NOBL9_CLIENT_SECRET }}
         run: |
           if [ "${{ steps.gate_summary.outputs.gate_exit }}" != "0" ]; then
             echo "Deployment gate blocked this release. See the summary above for details." >&2
