@@ -19,6 +19,8 @@ metadata:
     - dan-sepich
     service-tier:
     - tier2
+    business-criticality-tier:
+    - tier1
   name: recommendations-engine
   project: storefront-platform-demo
 spec:

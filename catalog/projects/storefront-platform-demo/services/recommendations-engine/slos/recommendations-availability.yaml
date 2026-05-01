@@ -19,6 +19,8 @@ metadata:
     - demo-platform
     service-tier:
     - tier2
+    business-criticality-tier:
+    - tier1
   name: recommendations-availability
   project: storefront-platform-demo
 spec:

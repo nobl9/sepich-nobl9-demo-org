@@ -17,6 +17,8 @@ metadata:
     - Demo Platforms
     env-type:
     - prod
+    business-criticality-tier:
+    - tier1
   name: check-balance
   project: banking-app
 spec:

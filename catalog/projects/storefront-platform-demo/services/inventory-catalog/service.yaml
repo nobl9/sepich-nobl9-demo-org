@@ -19,6 +19,8 @@ metadata:
     - dan-sepich
     service-tier:
     - tier2
+    business-criticality-tier:
+    - tier1
   name: inventory-catalog
   project: storefront-platform-demo
 spec:

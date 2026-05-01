@@ -19,6 +19,8 @@ metadata:
     - demo-platform
     service-tier:
     - tier1
+    business-criticality-tier:
+    - tier1
   name: storefront-platform-demo
 spec:
   description: Nobl9 project for the storefront platform reliability demo.
